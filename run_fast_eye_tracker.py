@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Fast Eye Tracker Pro Launcher
-=============================
+Eye Tracking & Cognitive Fatigue Detection System Launcher
+==========================================================
 
-Optimized launcher for the professional eye tracking application.
+Optimized launcher for the eye tracking and fatigue detection application.
 """
 
 import sys
@@ -26,9 +26,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sys; sys.path.append("face-eye-tracker"); from main import main
 
 if __name__ == "__main__":
-    print("🚀 Fast Eye Tracker Pro")
-    print("⚡ Optimized for maximum performance")
-    print("📊 Real-time fatigue detection")
-    print("=" * 50)
+    print("👁️ Eye Tracking & Cognitive Fatigue Detection System")
+    print("🔬 Real-time eye tracking and fatigue analysis")
+    print("📊 Professional monitoring and data collection")
+    print("=" * 60)
     
     sys.exit(main()) 

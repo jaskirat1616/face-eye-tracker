@@ -29,7 +29,7 @@ plt.rcParams['lines.linewidth'] = 2
 plt.rcParams['font.size'] = 9
 plt.rcParams['font.family'] = 'sans-serif'
 
-class FastEyeTrackerUI:
+class EyeTrackerUI:
     def __init__(self, tracker, data_logger):
         self.tracker = tracker
         self.data_logger = data_logger
@@ -83,7 +83,7 @@ class FastEyeTrackerUI:
     def create_ui(self):
         """Create the main UI window with modern design"""
         self.root = tk.Tk()
-        self.root.title("Eye Tracker Pro")
+        self.root.title("Eye Tracking & Cognitive Fatigue Detection System")
         self.root.geometry("1400x900")
         self.root.configure(bg='#ffffff')  # Light background for modern look
         
@@ -120,8 +120,8 @@ class FastEyeTrackerUI:
         title_frame = tk.Frame(sidebar, bg='#f8f9fa')
         title_frame.pack(fill='x', pady=(20, 25))
         
-        title_label = tk.Label(title_frame, text="Eye Tracker Pro", 
-                              font=("SF Pro Display", 20, "bold"), 
+        title_label = tk.Label(title_frame, text="Eye Tracking & Cognitive Fatigue Detection", 
+                              font=("SF Pro Display", 16, "bold"), 
                               bg='#f8f9fa', fg='#212529')
         title_label.pack()
         
@@ -758,4 +758,4 @@ class FastEyeTrackerUI:
         self.root.mainloop()
 
 # Alias for backward compatibility
-ModernEyeTrackerUI = FastEyeTrackerUI 
+ModernEyeTrackerUI = EyeTrackerUI 

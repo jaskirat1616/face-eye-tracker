@@ -203,7 +203,7 @@ class ComprehensiveEyeTrackerUI:
         
         self.performance_mode_var = tk.StringVar(value="Balanced")
         perf_menu = ttk.Combobox(perf_frame, textvariable=self.performance_mode_var,
-                                values=["Ultra Fast", "Fast", "Balanced"],
+                                values=["High Performance", "Optimized", "Balanced"],
                                 state="readonly", width=8)
         perf_menu.pack(anchor='w', pady=2)
         
@@ -918,12 +918,12 @@ class ComprehensiveEyeTrackerUI:
         """Apply performance settings based on user selection"""
         mode = self.performance_mode_var.get()
         
-        if mode == "Ultra Fast":
+        if mode == "High Performance":
             self.update_interval = 0.1
             self.chart_update_interval = 2.0
             self.ui_update_rate = 5
             self.video_quality_var.set("Low")
-        elif mode == "Fast":
+        elif mode == "Optimized":
             self.update_interval = 0.05
             self.chart_update_interval = 1.0
             self.ui_update_rate = 2

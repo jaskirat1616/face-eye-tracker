@@ -107,14 +107,14 @@ def check_camera():
 
 def main():
     """Main application function"""
-    parser = argparse.ArgumentParser(description="Fast Eye Tracking & Fatigue Detection Application")
+    parser = argparse.ArgumentParser(description="Eye Tracking & Cognitive Fatigue Detection Application")
     parser.add_argument("--ui", type=str, default="modern", 
                         choices=["comprehensive", "simple", "modern", "headless"],
                         help="The user interface to use for the application.")
     parser.add_argument("--camera", type=int, default=0, help="The camera index to use.")
     args = parser.parse_args()
 
-    print("👁️ Fast Eye Tracker Pro")
+    print("👁️ Eye Tracking & Cognitive Fatigue Detection System")
     print("=" * 40)  # Reduced length
     
     # Check dependencies
@@ -136,7 +136,7 @@ def main():
         print("   - Checking System Settings > Privacy & Security > Camera")
         return 1
     
-    print(f"\n🚀 Starting Fast Eye Tracker Pro...")
+    print(f"\n🚀 Starting Eye Tracking & Cognitive Fatigue Detection System...")
     if args.ui != "headless":
         print("   Application will open in a new window")
     print("\n📋 Instructions:")

@@ -1,6 +1,6 @@
-# 👁️ Fast Eye Tracker Pro
+# 👁️ Eye Tracking & Cognitive Fatigue Detection System
 
-A high-performance desktop application for real-time eye tracking and cognitive fatigue detection using advanced computer vision and machine learning techniques.
+A desktop application for real-time eye tracking and cognitive fatigue detection using advanced computer vision and machine learning techniques.
 
 ## 🎯 What This Application Does
 
@@ -80,10 +80,10 @@ wget https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landma
 
 #### 4. Run the Application
 ```bash
-# Fast version (recommended for most users)
+# Optimized version (recommended for most users)
 python run_fast_eye_tracker.py
 
-# Alternative launcher
+# Standard launcher
 python run_eye_tracker.py
 ```
 
@@ -193,7 +193,7 @@ The application supports different interface themes:
 # Modern dark theme (default)
 python run_fast_eye_tracker.py --ui modern
 
-# Simple interface
+# Simplified interface
 python run_fast_eye_tracker.py --ui simple
 
 # Comprehensive interface
@@ -261,7 +261,7 @@ pip install opencv-python mediapipe numpy matplotlib
 5. **Calibration**: Wait 10-15 seconds for initial calibration
 
 #### Performance Tips
-- Use the "Fast" version for better performance
+- Use the optimized version for better performance
 - Close unnecessary applications
 - Ensure good internet connection (for initial model download)
 - Regular breaks every 20-30 minutes of use
