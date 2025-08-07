@@ -23,7 +23,7 @@ os.environ['ABSL_LOGGING_MIN_LEVEL'] = '3'
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Import and run the main application
-from face_eye_tracker.main import main
+import sys; sys.path.append("face-eye-tracker"); from main import main
 
 if __name__ == "__main__":
     print("🚀 Fast Eye Tracker Pro")

@@ -1,4 +1,5 @@
 import warnings
+import os
 warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf")
 
 import cv2
@@ -52,7 +53,8 @@ class FaceEyeTracker:
         self.stability_mode = True  # Enable stability mode by default
         
         # MediaPipe Face Landmarker with optimized settings
-        base_options = python.BaseOptions(model_asset_path='face_landmarker.task')
+        model_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 'face_landmarker.task')
+        base_options = python.BaseOptions(model_asset_path=model_path)
         options = vision.FaceLandmarkerOptions(
             base_options=base_options,
             running_mode=vision.RunningMode.LIVE_STREAM,

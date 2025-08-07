@@ -20,15 +20,15 @@ logging.getLogger().setLevel(logging.ERROR)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['ABSL_LOGGING_MIN_LEVEL'] = '3'
 
-# Add the parent directory to the path so we can import our modules
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the current directory to the path so we can import our modules
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from face_eye_tracker.core.tracker import FaceEyeTracker
-from face_eye_tracker.utils.data_logger import DataLogger
-from face_eye_tracker.ui.comprehensive_ui import ComprehensiveEyeTrackerUI
-from face_eye_tracker.ui.simple_ui import SimpleEyeTrackerUI
-from face_eye_tracker.ui.modern_ui import ModernEyeTrackerUI
-from face_eye_tracker.ui.headless_ui import HeadlessUI
+from utils.core.tracker import FaceEyeTracker
+from utils.data_logger import DataLogger
+from ui.comprehensive_ui import ComprehensiveEyeTrackerUI
+from ui.simple_ui import SimpleEyeTrackerUI
+from ui.modern_ui import ModernEyeTrackerUI
+from ui.headless_ui import HeadlessUI
 
 def check_dependencies():
     """Check if all required dependencies are installed"""
@@ -61,7 +61,7 @@ def check_dependencies():
 
 def check_model_file():
     """Check if the MediaPipe model file exists"""
-    model_file = 'face_landmarker.task'
+    model_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'face_landmarker.task')
     
     if not os.path.exists(model_file):
         print("❌ MediaPipe model file not found!")
