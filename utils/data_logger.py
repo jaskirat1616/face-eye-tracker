@@ -4,14 +4,16 @@ from datetime import datetime
 from collections import deque
 
 class DataLogger:
-    def __init__(self, data_dir="face_eye_tracker/data"):
+    def __init__(self, data_dir="face_eye_tracker/data", enable_logging=False):
         self.data_dir = data_dir
         self.csv_file = None
         self.writer = None
         self.csv_handle = None
+        self.enable_logging = enable_logging  # Disabled by default for performance
         
         # Create data directory if it doesn't exist
-        os.makedirs(data_dir, exist_ok=True)
+        if self.enable_logging:
+            os.makedirs(data_dir, exist_ok=True)
         
         # Initialize data buffers for real-time analysis
         self.time_data = deque(maxlen=100)
@@ -23,6 +25,9 @@ class DataLogger:
         
     def start_logging(self):
         """Start logging to a new CSV file"""
+        if not self.enable_logging:
+            return
+            
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"eye_tracking_data_{timestamp}.csv"
         filepath = os.path.join(self.data_dir, filename)
@@ -46,7 +51,7 @@ class DataLogger:
         
     def log_data(self, data):
         """Log a single data point"""
-        if not self.writer:
+        if not self.enable_logging or not self.writer:
             return
             
         timestamp = datetime.now().isoformat()
@@ -84,7 +89,7 @@ class DataLogger:
         
     def stop_logging(self):
         """Stop logging and close the CSV file"""
-        if self.csv_handle:
+        if self.enable_logging and self.csv_handle:
             self.csv_handle.close()
             print(f"Stopped logging. Data saved to: {self.csv_file}")
             self.csv_handle = None

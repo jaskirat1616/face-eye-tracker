@@ -8,6 +8,17 @@ A modern, professional application for real-time eye tracking and fatigue detect
 
 import sys
 import os
+import argparse
+import warnings
+import logging
+
+# Suppress warnings and logging
+warnings.filterwarnings("ignore")
+logging.getLogger().setLevel(logging.ERROR)
+
+# Suppress MediaPipe and TensorFlow warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['ABSL_LOGGING_MIN_LEVEL'] = '3'
 
 # Add the parent directory to the path so we can import our modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -15,6 +26,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from face_eye_tracker.core.tracker import FaceEyeTracker
 from face_eye_tracker.utils.data_logger import DataLogger
 from face_eye_tracker.ui.comprehensive_ui import ComprehensiveEyeTrackerUI
+from face_eye_tracker.ui.simple_ui import SimpleEyeTrackerUI
+from face_eye_tracker.ui.modern_ui import ModernEyeTrackerUI
+from face_eye_tracker.ui.headless_ui import HeadlessUI
 
 def check_dependencies():
     """Check if all required dependencies are installed"""
@@ -60,6 +74,16 @@ def check_model_file():
     print("✅ MediaPipe model file found")
     return True
 
+def get_ui_class(ui_name):
+    """Return the UI class based on the name"""
+    ui_map = {
+        "comprehensive": ComprehensiveEyeTrackerUI,
+        "simple": SimpleEyeTrackerUI,
+        "modern": ModernEyeTrackerUI,
+        "headless": HeadlessUI,
+    }
+    return ui_map.get(ui_name.lower(), HeadlessUI)
+
 def check_camera():
     """Check if camera is available"""
     try:
@@ -83,8 +107,15 @@ def check_camera():
 
 def main():
     """Main application function"""
-    print("👁️ Eye Tracking & Fatigue Detection")
-    print("=" * 50)
+    parser = argparse.ArgumentParser(description="Fast Eye Tracking & Fatigue Detection Application")
+    parser.add_argument("--ui", type=str, default="modern", 
+                        choices=["comprehensive", "simple", "modern", "headless"],
+                        help="The user interface to use for the application.")
+    parser.add_argument("--camera", type=int, default=0, help="The camera index to use.")
+    args = parser.parse_args()
+
+    print("👁️ Fast Eye Tracker Pro")
+    print("=" * 40)  # Reduced length
     
     # Check dependencies
     print("\n🔍 Checking dependencies...")
@@ -105,21 +136,27 @@ def main():
         print("   - Checking System Settings > Privacy & Security > Camera")
         return 1
     
-    print("\n🚀 Starting Eye Tracking Application...")
-    print("   The application will open in a new window")
-    print("\n📋 Usage Instructions:")
-    print("   1. Click 'Start Tracking' to begin")
+    print(f"\n🚀 Starting Fast Eye Tracker Pro...")
+    if args.ui != "headless":
+        print("   Application will open in a new window")
+    print("\n📋 Instructions:")
+    if args.ui != "headless":
+        print("   1. Click 'Start' to begin")
     print("   2. Allow camera access when prompted")
     print("   3. Position yourself in front of the camera")
     print("   4. Wait for calibration to complete")
     print("   5. Monitor real-time metrics and charts")
-    print("\n🛑 Close the window to stop the application")
+    print("\n⚡ Optimized for maximum performance")
+    print("\n🛑 Close window or press 'q' to stop")
     
     try:
         # Initialize components
-        tracker = FaceEyeTracker(camera_index=0)
-        data_logger = DataLogger()
-        ui = ComprehensiveEyeTrackerUI(tracker, data_logger)
+        tracker = FaceEyeTracker(camera_index=args.camera)
+        data_logger = DataLogger(enable_logging=False)  # Disabled for performance
+        
+        # Get the selected UI class
+        ui_class = get_ui_class(args.ui)
+        ui = ui_class(tracker, data_logger)
         
         # Run the application
         ui.run()

@@ -35,7 +35,7 @@ class ComprehensiveEyeTrackerUI:
         self.video_label = None
         
         # Data queue for thread-safe communication
-        self.data_queue = queue.Queue(maxsize=10)  # Limit queue size to prevent lag
+        self.data_queue = queue.Queue(maxsize=1)  # Limit queue size to 1 to process only the latest data
         
         # Chart data with limited history for performance
         self.chart_data = {
@@ -49,15 +49,15 @@ class ComprehensiveEyeTrackerUI:
         
         # Performance optimization flags
         self.last_update_time = 0
-        self.update_interval = 0.3  # Update UI every 300ms (reduced frequency)
-        self.chart_update_interval = 2.0  # Update charts every 2 seconds (much less frequent)
+        self.update_interval = 0.05  # Update UI every 50ms
+        self.chart_update_interval = 1.0  # Update charts every 1 second
         self.last_chart_update = 0
         self.video_update_interval = 0.3  # Update video every 300ms (reduced frequency)
         self.last_video_update = 0
         self.frame_skip_counter = 0
         self.frame_skip_rate = 6  # Process every 6th frame for video (more aggressive)
         self.ui_update_counter = 0
-        self.ui_update_rate = 5  # Update UI every 5th data point
+        self.ui_update_rate = 2  # Update UI every 2nd data point
         
         # Session data
         self.session_start_time = None
@@ -481,26 +481,25 @@ class ComprehensiveEyeTrackerUI:
         
         # Only update if enough time has passed
         if current_time - self.last_update_time < self.update_interval:
-            self.root.after(50, self.process_data_queue)  # Increased delay
+            self.root.after(20, self.process_data_queue)  # Check again in 20ms
             return
             
         try:
-            # Process all available data but limit updates
-            data = None
-            while not self.data_queue.empty():
-                data = self.data_queue.get_nowait()
+            # Process only the latest data in the queue
+            data = self.data_queue.get_nowait()
             
-            if data is not None:
-                # Only update UI every few data points
-                self.ui_update_counter += 1
-                if self.ui_update_counter % self.ui_update_rate == 0:
-                    self.update_ui(data)
-                    self.update_live_data(data)
-                
-                # Update video much less frequently
-                if current_time - self.last_video_update >= self.video_update_interval:
-                    self.update_video(data)
-                    self.last_video_update = current_time
+            # Clear the queue to discard stale frames
+            with self.data_queue.mutex:
+                self.data_queue.queue.clear()
+            
+            # Always update the video feed for smoothness
+            self.update_video(data)
+            
+            # Update UI components less frequently
+            self.ui_update_counter += 1
+            if self.ui_update_counter % self.ui_update_rate == 0:
+                self.update_ui(data)
+                self.update_live_data(data)
                 
                 # Update charts very infrequently (only if enabled)
                 if (self.charts_enabled.get() and 
@@ -512,8 +511,8 @@ class ComprehensiveEyeTrackerUI:
             pass
         
         self.last_update_time = current_time
-        # Schedule next processing with longer delay
-        self.root.after(50, self.process_data_queue)
+        # Schedule next processing immediately
+        self.root.after(1, self.process_data_queue)
         
     def start_animation(self):
         """Start the chart animation with configurable interval"""
@@ -628,17 +627,17 @@ class ComprehensiveEyeTrackerUI:
             # Flip horizontally to fix mirroring
             frame_rgb = cv2.flip(frame_rgb, 1)
             
-            # Much more aggressive quality settings for performance
+            # Define quality settings
             quality = self.video_quality_var.get()
             if quality == "Low":
-                max_size = 240  # Much smaller for better performance
-                interpolation = cv2.INTER_NEAREST
+                max_size = 480
+                interpolation = cv2.INTER_AREA
             elif quality == "High":
-                max_size = 320  # Much reduced for performance
-                interpolation = cv2.INTER_NEAREST  # Fastest interpolation
+                max_size = 800
+                interpolation = cv2.INTER_LANCZOS4
             else:  # Medium
-                max_size = 280  # Much reduced for performance
-                interpolation = cv2.INTER_NEAREST
+                max_size = 640
+                interpolation = cv2.INTER_LINEAR
             
             # Resize frame to fit display
             height, width = frame_rgb.shape[:2]
@@ -778,25 +777,18 @@ class ComprehensiveEyeTrackerUI:
         self.status_label.config(text="Status: Stopped", fg='#f44336')
         
     def process_frames(self):
-        """Process frames in a separate thread with frame skipping for performance"""
+        """Process frames in a separate thread"""
         while self.is_running:
             try:
                 frame = self.tracker.read_frame()
                 if frame is None:
+                    time.sleep(0.01) # Avoid busy-waiting
                     continue
-                
-                # Frame skipping for video processing
-                self.frame_skip_counter += 1
-                process_video = (self.frame_skip_counter % self.frame_skip_rate == 0)
                 
                 # Process the frame
                 result = self.tracker.process_frame(frame)
                 if result is None:
                     continue
-                
-                # Only include frame data if we're processing video
-                if not process_video:
-                    result.pop('frame', None)
                 
                 # Log the data if logging is enabled
                 if self.logging_var.get():
@@ -806,21 +798,8 @@ class ComprehensiveEyeTrackerUI:
                 try:
                     self.data_queue.put_nowait(result)
                 except queue.Full:
-                    # If queue is full, remove oldest item and add new one
-                    try:
-                        self.data_queue.get_nowait()
-                        self.data_queue.put_nowait(result)
-                    except queue.Empty:
-                        pass
-                
-                # Much more aggressive frame rate limiting
-                if hasattr(self, 'last_frame_time'):
-                    elapsed = time.time() - self.last_frame_time
-                    target_fps = 10  # Much reduced for better performance
-                    target_interval = 1.0 / target_fps
-                    if elapsed < target_interval:
-                        time.sleep(target_interval - elapsed)
-                self.last_frame_time = time.time()
+                    # If queue is full, discard the new frame to prevent lag
+                    pass
                 
                 # Check for fatigue alerts
                 if self.alert_var.get() and result['overall_fatigue_score'] > 0.7:
@@ -940,26 +919,20 @@ class ComprehensiveEyeTrackerUI:
         mode = self.performance_mode_var.get()
         
         if mode == "Ultra Fast":
-            self.update_interval = 0.5
-            self.video_update_interval = 0.5
-            self.chart_update_interval = 5.0
-            self.frame_skip_rate = 8
-            self.ui_update_rate = 10
-            self.video_quality_var.set("Low")
-        elif mode == "Fast":
-            self.update_interval = 0.3
-            self.video_update_interval = 0.3
+            self.update_interval = 0.1
             self.chart_update_interval = 2.0
-            self.frame_skip_rate = 6
             self.ui_update_rate = 5
             self.video_quality_var.set("Low")
-        else:  # Balanced
-            self.update_interval = 0.2
-            self.video_update_interval = 0.2
+        elif mode == "Fast":
+            self.update_interval = 0.05
             self.chart_update_interval = 1.0
-            self.frame_skip_rate = 4
-            self.ui_update_rate = 3
+            self.ui_update_rate = 2
             self.video_quality_var.set("Medium")
+        else:  # Balanced
+            self.update_interval = 0.02
+            self.chart_update_interval = 0.5
+            self.ui_update_rate = 1
+            self.video_quality_var.set("High")
             
         self.show_info_dialog("Settings Applied", f"Performance mode set to: {mode}")
             

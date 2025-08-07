@@ -1,8 +1,14 @@
-# 👁️ Modern Eye Tracking & Fatigue Detection
+# 👁️ Fast Eye Tracker Pro
 
-A clean, professional desktop application for real-time eye tracking and fatigue detection with beautiful charts and a modern interface.
+A high-performance desktop application for real-time eye tracking and fatigue detection with optimized performance and minimal lag.
 
 ## ✨ Features
+
+### ⚡ High-Performance Processing
+- Optimized camera settings for maximum speed
+- Frame skipping for reduced CPU usage
+- Minimal UI updates to prevent lag
+- Hardware-accelerated video processing
 
 ### 🎥 Real-time Processing
 - Live camera feed with face mesh overlay
@@ -11,9 +17,9 @@ A clean, professional desktop application for real-time eye tracking and fatigue
 
 ### 📊 Professional UI
 - Modern dark theme interface
-- Real-time line charts with smooth animations
+- Optimized video display with efficient rendering
 - Live metrics display with color-coded indicators
-- Progress bars for fatigue scores
+- Real-time FPS monitoring
 
 ### 🏥 Advanced Analytics
 - **Eye Openness Tracking**: Precise left/right eye measurements
@@ -21,11 +27,11 @@ A clean, professional desktop application for real-time eye tracking and fatigue
 - **Saccade Detection**: Large and microsaccade analysis
 - **Fatigue Analysis**: Comprehensive multi-indicator scoring
 
-### 📈 Real-time Charts
-- Eye openness over time (dual-line chart)
-- Blink rate trends
-- Fatigue score progression
-- Detection quality monitoring
+### 📈 Performance Optimizations
+- Data logging disabled by default for speed
+- Efficient frame processing pipeline
+- Optimized MediaPipe settings
+- Reduced memory usage
 
 ## 🚀 Quick Start
 
@@ -50,6 +56,10 @@ A clean, professional desktop application for real-time eye tracking and fatigue
 
 3. **Run the Application**:
    ```bash
+   # Fast version (recommended)
+   python run_fast_eye_tracker.py
+   
+   # Or use the main launcher
    python run_eye_tracker.py
    ```
 
