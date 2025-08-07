@@ -40,9 +40,13 @@ class FastEyeTrackerUI:
         self.frame_queue = queue.Queue(maxsize=1)  # Single frame buffer for minimal lag
         self.ui_update_interval = 16  # Update UI every 16ms (60 FPS) for smooth performance
         self.last_ui_update = 0
-        self.chart_update_interval = 500  # Update charts every 500ms to reduce lag
-        self.metrics_update_interval = 100  # Update metrics every 100ms
+        self.chart_update_interval = 200  # Update charts every 200ms for better responsiveness
+        self.metrics_update_interval = 50  # Update metrics every 50ms for higher accuracy
         self.last_metrics_update = 0
+        
+        # Chart optimization
+        self.chart_lines = {}  # Store line objects for efficient updates
+        self.chart_initialized = False
         
         # UI elements
         self.video_label = None
@@ -345,61 +349,87 @@ class FastEyeTrackerUI:
     def start_animation(self):
         """Start the chart animation with optimized frequency"""
         self.ani = animation.FuncAnimation(self.fig, self.update_charts, 
-                                          interval=1000, blit=False, cache_frame_data=False)
+                                          interval=200, blit=True, cache_frame_data=False)
     
     def update_charts(self, frame):
-        """Update the charts with optimized performance"""
+        """Update the charts with high accuracy and minimal lag"""
         try:
             if not self.is_running:
-                return
+                return []
                 
             current_time = time.time()
             
-            # Throttle chart updates to reduce lag
-            if current_time - self.last_chart_update < (self.chart_update_interval / 1000.0):
-                return
-                
-            self.last_chart_update = current_time
-            
-            # Get latest data
+            # Get latest data with high accuracy
             data = self.tracker.get_current_data()
             if not data:
-                return
+                return []
             
-            # Update chart data
+            # Update chart data with precision
             self.chart_data['time'].append(current_time)
-            self.chart_data['left_eye'].append(data.get('left_eye_openness', 0))
-            self.chart_data['right_eye'].append(data.get('right_eye_openness', 0))
-            self.chart_data['blink_rate'].append(data.get('blink_rate', 0))
-            self.chart_data['saccade_rate'].append(data.get('saccade_rate', 0))
-            self.chart_data['fatigue'].append(data.get('overall_fatigue_score', 0))
-            self.chart_data['quality'].append(data.get('quality_score', 0))
+            self.chart_data['left_eye'].append(float(data.get('left_eye_openness', 0)))
+            self.chart_data['right_eye'].append(float(data.get('right_eye_openness', 0)))
+            self.chart_data['blink_rate'].append(float(data.get('blink_rate', 0)))
+            self.chart_data['saccade_rate'].append(float(data.get('saccade_rate', 0)))
+            self.chart_data['fatigue'].append(float(data.get('overall_fatigue_score', 0)))
+            self.chart_data['quality'].append(float(data.get('quality_score', 0)))
             
-            # Keep only last 15 data points for better performance
-            max_points = 15
+            # Keep only last 20 data points for better accuracy
+            max_points = 20
             for key in self.chart_data:
                 if len(self.chart_data[key]) > max_points:
                     self.chart_data[key] = self.chart_data[key][-max_points:]
             
-            # Update comprehensive metrics
+            # Update comprehensive metrics with high frequency
             self.update_comprehensive_metrics(data)
             
-            # Update charts with modern styling
-            self.update_chart_plots(data)
+            # Update charts efficiently and return artists for blit
+            return self.update_chart_plots_efficient(data)
                 
         except Exception as e:
             print(f"Error updating charts: {e}")
+            return []
     
-    def update_chart_plots(self, data):
-        """Update individual chart plots with modern styling"""
+    def update_chart_plots_efficient(self, data):
+        """Update charts efficiently using line objects for minimal lag"""
         try:
             if len(self.chart_data['time']) < 2:
-                return
-                
+                return []
+            
             times = [t - self.chart_data['time'][0] for t in self.chart_data['time']]
             
+            # Initialize charts if not done yet
+            if not self.chart_initialized:
+                self.initialize_charts()
+                self.chart_initialized = True
+            
+            # Update line data efficiently
+            self.chart_lines['left_eye'].set_data(times, self.chart_data['left_eye'])
+            self.chart_lines['right_eye'].set_data(times, self.chart_data['right_eye'])
+            self.chart_lines['blink_rate'].set_data(times, self.chart_data['blink_rate'])
+            self.chart_lines['saccade_rate'].set_data(times, self.chart_data['saccade_rate'])
+            self.chart_lines['fatigue'].set_data(times, self.chart_data['fatigue'])
+            self.chart_lines['quality'].set_data(times, self.chart_data['quality'])
+            
+            # Update microsaccade data
+            microsaccade_data = [data.get('microsaccade_rate', 0)] * len(times)
+            self.chart_lines['microsaccade'].set_data(times, microsaccade_data)
+            
+            # Update axis limits for smooth scrolling
+            for ax in [self.ax1, self.ax2, self.ax3, self.ax4, self.ax5, self.ax6]:
+                ax.relim()
+                ax.autoscale_view()
+            
+            # Return all line artists for blit animation
+            return list(self.chart_lines.values())
+                
+        except Exception as e:
+            print(f"Error updating chart plots efficiently: {e}")
+            return []
+    
+    def initialize_charts(self):
+        """Initialize chart lines for efficient updates"""
+        try:
             # Eye openness chart
-            self.ax1.clear()
             self.ax1.set_facecolor('#f8f9fa')
             self.ax1.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
             self.ax1.tick_params(colors='#6c757d', labelsize=8)
@@ -409,14 +439,11 @@ class FastEyeTrackerUI:
             self.ax1.spines['bottom'].set_color('#dee2e6')
             self.ax1.set_title('Eye Openness', color='#212529', fontsize=11, fontweight='bold', pad=8)
             
-            self.ax1.plot(times, self.chart_data['left_eye'], label='Left', 
-                         color='#007bff', linewidth=2, alpha=0.8)
-            self.ax1.plot(times, self.chart_data['right_eye'], label='Right', 
-                         color='#28a745', linewidth=2, alpha=0.8)
+            self.chart_lines['left_eye'], = self.ax1.plot([], [], color='#007bff', linewidth=2, alpha=0.8, label='Left')
+            self.chart_lines['right_eye'], = self.ax1.plot([], [], color='#28a745', linewidth=2, alpha=0.8, label='Right')
             self.ax1.legend(fontsize=8, framealpha=0.9)
             
             # Blink rate chart
-            self.ax2.clear()
             self.ax2.set_facecolor('#f8f9fa')
             self.ax2.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
             self.ax2.tick_params(colors='#6c757d', labelsize=8)
@@ -426,11 +453,9 @@ class FastEyeTrackerUI:
             self.ax2.spines['bottom'].set_color('#dee2e6')
             self.ax2.set_title('Blink Rate', color='#212529', fontsize=11, fontweight='bold', pad=8)
             
-            self.ax2.plot(times, self.chart_data['blink_rate'], 
-                         color='#ffc107', linewidth=2, alpha=0.8)
+            self.chart_lines['blink_rate'], = self.ax2.plot([], [], color='#ffc107', linewidth=2, alpha=0.8)
             
             # Saccade rate chart
-            self.ax3.clear()
             self.ax3.set_facecolor('#f8f9fa')
             self.ax3.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
             self.ax3.tick_params(colors='#6c757d', labelsize=8)
@@ -440,11 +465,9 @@ class FastEyeTrackerUI:
             self.ax3.spines['bottom'].set_color('#dee2e6')
             self.ax3.set_title('Saccade Rate', color='#212529', fontsize=11, fontweight='bold', pad=8)
             
-            self.ax3.plot(times, self.chart_data['saccade_rate'], 
-                         color='#fd7e14', linewidth=2, alpha=0.8)
+            self.chart_lines['saccade_rate'], = self.ax3.plot([], [], color='#fd7e14', linewidth=2, alpha=0.8)
             
             # Fatigue chart
-            self.ax4.clear()
             self.ax4.set_facecolor('#f8f9fa')
             self.ax4.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
             self.ax4.tick_params(colors='#6c757d', labelsize=8)
@@ -454,11 +477,9 @@ class FastEyeTrackerUI:
             self.ax4.spines['bottom'].set_color('#dee2e6')
             self.ax4.set_title('Fatigue Score', color='#212529', fontsize=11, fontweight='bold', pad=8)
             
-            self.ax4.plot(times, self.chart_data['fatigue'], 
-                         color='#dc3545', linewidth=2, alpha=0.8)
+            self.chart_lines['fatigue'], = self.ax4.plot([], [], color='#dc3545', linewidth=2, alpha=0.8)
             
             # Quality chart
-            self.ax5.clear()
             self.ax5.set_facecolor('#f8f9fa')
             self.ax5.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
             self.ax5.tick_params(colors='#6c757d', labelsize=8)
@@ -468,11 +489,9 @@ class FastEyeTrackerUI:
             self.ax5.spines['bottom'].set_color('#dee2e6')
             self.ax5.set_title('Quality', color='#212529', fontsize=11, fontweight='bold', pad=8)
             
-            self.ax5.plot(times, self.chart_data['quality'], 
-                         color='#6f42c1', linewidth=2, alpha=0.8)
+            self.chart_lines['quality'], = self.ax5.plot([], [], color='#6f42c1', linewidth=2, alpha=0.8)
             
             # Microsaccade chart
-            self.ax6.clear()
             self.ax6.set_facecolor('#f8f9fa')
             self.ax6.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
             self.ax6.tick_params(colors='#6c757d', labelsize=8)
@@ -482,13 +501,10 @@ class FastEyeTrackerUI:
             self.ax6.spines['bottom'].set_color('#dee2e6')
             self.ax6.set_title('Microsaccades', color='#212529', fontsize=11, fontweight='bold', pad=8)
             
-            # Use actual microsaccade data if available
-            microsaccade_data = [data.get('microsaccade_rate', 0)] * len(times)
-            self.ax6.plot(times, microsaccade_data, 
-                         color='#20c997', linewidth=2, alpha=0.8)
+            self.chart_lines['microsaccade'], = self.ax6.plot([], [], color='#20c997', linewidth=2, alpha=0.8)
                 
         except Exception as e:
-            print(f"Error updating chart plots: {e}")
+            print(f"Error initializing charts: {e}")
     
     def update_comprehensive_metrics(self, data):
         """Update comprehensive metrics display with current data"""
