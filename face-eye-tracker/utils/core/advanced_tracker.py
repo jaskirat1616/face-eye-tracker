@@ -147,6 +147,16 @@ class AdvancedEyeTracker:
         self.result = None
         self.timestamp = 0
         
+        # 3D model points for head pose estimation
+        self.face_3d_model_points = np.array([
+            [0.0, 0.0, 0.0],            # Nose tip
+            [0.0, -330.0, -65.0],       # Chin
+            [-225.0, 170.0, -135.0],    # Left eye left corner
+            [225.0, 170.0, -135.0],     # Right eye right corner
+            [-150.0, -150.0, -125.0],   # Left Mouth corner
+            [150.0, -150.0, -125.0]     # Right mouth corner
+        ])
+        
         # Advanced landmark indices for research
         self.landmark_indices = {
             'left_eye': [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398],
@@ -447,7 +457,7 @@ class AdvancedEyeTracker:
         data.update(self._analyze_eye_movements())
         
         # Head pose estimation
-        data.update(self._estimate_head_pose(face_landmarks))
+        data.update(self._estimate_head_pose(face_landmarks, frame.shape))
         
         # Quality metrics
         data['face_confidence'] = self.result.face_landmarks[0].confidence if hasattr(self.result.face_landmarks[0], 'confidence') else 0.8
@@ -542,21 +552,53 @@ class AdvancedEyeTracker:
         
         return fixation_frames * 0.016  # Assuming 60 FPS
     
-    def _estimate_head_pose(self, face_landmarks):
-        """Estimate head pose for research"""
+    def _estimate_head_pose(self, face_landmarks, frame_shape):
+        """Estimate head pose using solvePnP for research"""
         data = {}
+        height, width, _ = frame_shape
         
-        # Extract key head landmarks
-        nose_tip = np.array([face_landmarks[4].x, face_landmarks[4].y])
-        left_ear = np.array([face_landmarks[234].x, face_landmarks[234].y])
-        right_ear = np.array([face_landmarks[454].x, face_landmarks[454].y])
+        # 2D image points from landmarks
+        face_2d_points = np.array([
+            (face_landmarks[1].x * width, face_landmarks[1].y * height),   # Nose tip
+            (face_landmarks[152].x * width, face_landmarks[152].y * height), # Chin
+            (face_landmarks[263].x * width, face_landmarks[263].y * height), # Left eye corner
+            (face_landmarks[33].x * width, face_landmarks[33].y * height),  # Right eye corner
+            (face_landmarks[287].x * width, face_landmarks[287].y * height), # Left mouth corner
+            (face_landmarks[57].x * width, face_landmarks[57].y * height)   # Right mouth corner
+        ], dtype=np.float64)
+
+        # Camera matrix and distortion coefficients
+        focal_length = width
+        cam_matrix = np.array([[focal_length, 0, height / 2],
+                               [0, focal_length, width / 2],
+                               [0, 0, 1]], dtype=np.float64)
+        dist_coeffs = np.zeros((4, 1), dtype=np.float64)
+
+        # Solve for rotation and translation vectors
+        success, rvec, tvec = cv2.solvePnP(self.face_3d_model_points, face_2d_points, cam_matrix, dist_coeffs)
         
-        # Calculate head center and orientation
-        head_center = (left_ear + right_ear) / 2
-        head_tilt = np.arctan2(right_ear[1] - left_ear[1], right_ear[0] - left_ear[0])
-        
-        data['head_center'] = head_center.tolist()
-        data['head_tilt'] = head_tilt
+        if success:
+            data['rvec'] = rvec.flatten().tolist()
+            data['tvec'] = tvec.flatten().tolist()
+            
+            # Decompose rotation matrix to get Euler angles
+            rmat, _ = cv2.Rodrigues(rvec)
+            sy = np.sqrt(rmat[0, 0] * rmat[0, 0] + rmat[1, 0] * rmat[1, 0])
+            singular = sy < 1e-6
+            
+            if not singular:
+                x = np.arctan2(rmat[2, 1], rmat[2, 2])
+                y = np.arctan2(-rmat[2, 0], sy)
+                z = np.arctan2(rmat[1, 0], rmat[0, 0])
+            else:
+                x = np.arctan2(-rmat[1, 2], rmat[1, 1])
+                y = np.arctan2(-rmat[2, 0], sy)
+                z = 0
+            
+            # Convert to degrees
+            data['head_roll'] = x * 180.0 / np.pi
+            data['head_yaw'] = y * 180.0 / np.pi
+            data['head_tilt'] = z * 180.0 / np.pi
         
         return data
     
@@ -576,8 +618,26 @@ class AdvancedEyeTracker:
             x, y = int(gaze_pos[0] * width), int(gaze_pos[1] * height)
             cv2.circle(frame, (x, y), 10, (255, 0, 0), 2)
         
-        # Draw research metrics
-        self._draw_research_metrics(frame, data)
+        # Draw head pose axis
+        if 'rvec' in data and 'tvec' in data:
+            rvec, tvec = np.array(data['rvec']), np.array(data['tvec'])
+            axis = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, -100]]).reshape(-1, 3)
+            
+            cam_matrix = self._get_camera_matrix(width, height)
+            dist_coeffs = np.zeros((4, 1))
+
+            imgpts, _ = cv2.projectPoints(axis, rvec, tvec, cam_matrix, dist_coeffs)
+            
+            face_landmarks = self.result.face_landmarks[0]
+            nose_2d = (int(face_landmarks[1].x * width), int(face_landmarks[1].y * height))
+
+            p1 = (int(imgpts[0].ravel()[0]), int(imgpts[0].ravel()[1]))
+            p2 = (int(imgpts[1].ravel()[0]), int(imgpts[1].ravel()[1]))
+            p3 = (int(imgpts[2].ravel()[0]), int(imgpts[2].ravel()[1]))
+            
+            cv2.line(frame, nose_2d, p1, (255, 0, 0), 3) # X-axis (blue)
+            cv2.line(frame, nose_2d, p2, (0, 255, 0), 3) # Y-axis (green)
+            cv2.line(frame, nose_2d, p3, (0, 0, 255), 3) # Z-axis (red)
         
         return frame
     
@@ -604,21 +664,6 @@ class AdvancedEyeTracker:
         except Exception as e:
             print(f"Face mesh drawing error: {e}")
             return frame
-    
-    def _draw_research_metrics(self, frame, data):
-        """Draw research metrics on frame"""
-        y_offset = 30
-        
-        metrics = [
-            f"Fatigue: {data.get('advanced_fatigue_score', 0):.3f}",
-            f"Quality: {data.get('advanced_quality_score', 0):.3f}",
-            f"Pupil Diameter: {data.get('pupil_diameter', 0):.1f}px"
-        ]
-        
-        for metric in metrics:
-            cv2.putText(frame, metric, (10, y_offset), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-            y_offset += 25
     
     def get_research_summary(self):
         """Get research session summary"""
@@ -837,4 +882,20 @@ class AdvancedEyeTracker:
         else:
             saccade_rate = 20  # Default saccade rate
         
-        return saccade_rate 
+        return saccade_rate
+
+    def _get_camera_matrix(self, width, height):
+        """Get the camera matrix"""
+        focal_length = width
+        return np.array([
+            [focal_length, 0, height / 2],
+            [0, focal_length, width / 2],
+            [0, 0, 1]
+        ], dtype=np.float64)
+
+    def _get_2d_landmark_point(self, data, landmark_index):
+        """Get 2D point for a given landmark index"""
+        if 'face_landmarks' in data and len(data['face_landmarks']) > landmark_index:
+            lm = data['face_landmarks'][landmark_index]
+            return (lm[0], lm[1])
+        return None 

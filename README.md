@@ -273,3 +273,32 @@ For questions, issues, or feature requests:
 
 **🔬 Professional Research-Grade Eye Tracking System**  
 *Accurate, Reliable, and Comprehensive*
+
+# Research Eye Tracking System
+
+This is a research-grade eye tracking system for monitoring cognitive load and fatigue. This updated version includes head pose estimation and an improved research UI.
+
+## Quick Start: Running the Research UI
+
+To run the research UI, execute the following command from the `face_eye_tracker` directory:
+
+```bash
+python3 face-eye-tracker/main.py --ui research
+```
+
+This will launch the advanced research interface, which includes:
+-   Real-time data visualization
+-   Head pose (yaw and roll) display
+-   Advanced cognitive load metrics
+
+## Head Pose Estimation
+
+The system now displays the head's yaw and roll angles in the research UI. These values are estimated from the face mesh and can be used to monitor the subject's head orientation during the session.
+
+## Note on Glasses
+
+The accuracy of the eye tracking may be affected if the user is wearing glasses. The system may not perform optimally with all types of eyewear.
+
+## Original README Content
+
+... (The original README content can be appended here if needed) ...

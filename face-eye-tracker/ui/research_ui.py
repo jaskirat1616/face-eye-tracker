@@ -103,7 +103,10 @@ class ResearchEyeTrackerUI:
             'mental_effort': [],
             'blink_rate': [],
             'saccade_rate': [],
-            'fixation_duration': [] 
+            'fixation_duration': [],
+            'head_tilt': [],
+            'head_yaw': [],
+            'head_roll': []
         }
         
     def create_ui(self):
@@ -538,6 +541,8 @@ class ResearchEyeTrackerUI:
             ("Blink Rate (/min)", "blink_rate", "#17a2b8"),
             ("Saccade Rate (/min)", "saccade_rate", "#ffc107"),
             ("Head Tilt (rad)", "head_tilt", "#6610f2"),
+            ("Head Yaw (rad)", "head_yaw", "#6610f2"),
+            ("Head Roll (rad)", "head_roll", "#6610f2"),
             ("Calibration Quality", "calibration_quality", "#28a745"),
             ("Session Duration", "session_duration", "#6c757d"),
             ("Total Events", "total_events", "#495057"),
@@ -648,6 +653,9 @@ class ResearchEyeTrackerUI:
             self.chart_data['blink_rate'].append(float(data.get('blink_rate', 0)))
             self.chart_data['saccade_rate'].append(float(data.get('saccade_rate', 0)))
             self.chart_data['fixation_duration'].append(float(data.get('fixation_duration', 0)))
+            self.chart_data['head_tilt'].append(float(data.get('head_tilt', 0)))
+            self.chart_data['head_yaw'].append(float(data.get('head_yaw', 0)))
+            self.chart_data['head_roll'].append(float(data.get('head_roll', 0)))
             
             # Keep only last 50 data points
             max_points = 50
@@ -690,6 +698,9 @@ class ResearchEyeTrackerUI:
             self.chart_lines['gaze_stability'].set_data(times, self.chart_data['gaze_stability'])
             self.chart_lines['pupil_diameter'].set_data(times, self.chart_data['pupil_diameter'])
             self.chart_lines['eye_velocity'].set_data(times, self.chart_data['eye_velocity'])
+            self.chart_lines['head_tilt'].set_data(times, self.chart_data['head_tilt'])
+            self.chart_lines['head_yaw'].set_data(times, self.chart_data['head_yaw'])
+            self.chart_lines['head_roll'].set_data(times, self.chart_data['head_roll'])
             
             # Update axis limits
             for ax in [self.ax1, self.ax2, self.ax3, self.ax4, self.ax5, self.ax5_twin]:
@@ -724,6 +735,9 @@ class ResearchEyeTrackerUI:
             # Ax4: Data Quality
             self.chart_lines['quality'], = self.ax4.plot([], [], color='#20c997', lw=2, alpha=0.9, label='Detection Quality')
             self.chart_lines['gaze_stability'], = self.ax4.plot([], [], color='#6610f2', lw=2, alpha=0.9, label='Gaze Stability')
+            self.chart_lines['head_tilt'], = self.ax4.plot([], [], color='#e83e8c', lw=1, linestyle='--', alpha=0.8, label='Head Tilt')
+            self.chart_lines['head_yaw'], = self.ax4.plot([], [], color='#fd7e14', lw=1, linestyle='--', alpha=0.8, label='Head Yaw')
+            self.chart_lines['head_roll'], = self.ax4.plot([], [], color='#6f42c1', lw=1, linestyle='--', alpha=0.8, label='Head Roll')
             self.ax4.legend(fontsize=8)
 
             # Ax5: Advanced Neurometrics (with twin y-axis)
@@ -784,6 +798,12 @@ class ResearchEyeTrackerUI:
             
             self.research_metrics["head_tilt"].config(
                 text=f"{data.get('head_tilt', 0):.3f}")
+            
+            self.research_metrics["head_yaw"].config(
+                text=f"{data.get('head_yaw', 0):.3f}")
+            
+            self.research_metrics["head_roll"].config(
+                text=f"{data.get('head_roll', 0):.3f}")
             
             # Session metrics
             if self.session_start_time:
@@ -1207,9 +1227,32 @@ class ResearchEyeTrackerUI:
     def update_video_display(self, frame):
         """Update video display"""
         try:
-            # Flip frame horizontally
+            # Flip frame horizontally to create a mirror effect
             frame = cv2.flip(frame, 1)
             
+            # Get latest data to draw on the flipped frame
+            data = self.tracker.get_current_data()
+            if data:
+                # Prepare metrics text
+                metrics = [
+                    f"Fatigue: {data.get('advanced_fatigue_score', 0):.2f}",
+                    f"Quality: {data.get('advanced_quality_score', 0):.2f}",
+                    f"Pupil Diameter: {data.get('pupil_diameter', 0):.1f}px",
+                    f"Head Yaw: {data.get('head_yaw', 0):.1f}",
+                    f"Head Roll: {data.get('head_roll', 0):.1f}"
+                ]
+                
+                # Draw metrics on the top-left of the frame
+                y_offset = 30
+                for metric in metrics:
+                    # Draw black outline for better visibility
+                    cv2.putText(frame, metric, (10, y_offset), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 3, cv2.LINE_AA)
+                    # Draw the actual text in green
+                    cv2.putText(frame, metric, (10, y_offset), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2, cv2.LINE_AA)
+                    y_offset += 25
+
             # Resize for display
             height, width = frame.shape[:2]
             target_width = 640
