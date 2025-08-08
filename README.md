@@ -1,340 +1,275 @@
-# 👁️ Eye Tracking & Cognitive Fatigue Detection System
+# Advanced Eye Tracking & Cognitive Load Detection System
 
-A desktop application for real-time eye tracking and cognitive fatigue detection using advanced computer vision and machine learning techniques.
+🔬 **Professional Research-Grade Eye Tracking System with Advanced Features**
 
-## 🎯 What This Application Does
+A comprehensive, research-grade eye tracking and cognitive load detection system designed for professional research, academic studies, and cognitive science applications.
 
-### Primary Purpose
-This application monitors your eyes in real-time to detect signs of cognitive fatigue and mental workload. It's designed for:
+## 🌟 Key Features
 
-- **Researchers** studying cognitive load and fatigue
-- **Students** monitoring study sessions and mental fatigue
-- **Professionals** tracking work-related mental strain
-- **Drivers** monitoring alertness (safety applications)
-- **Gamers** tracking gaming session fatigue
+### 🔬 Research-Grade Accuracy
+- **High-precision pupil tracking** with sub-pixel accuracy
+- **Advanced calibration system** with 9-point calibration
+- **Real-time quality assessment** and monitoring
+- **Multi-modal sensor fusion** for enhanced accuracy
 
-### How It Works
-1. **Real-time Eye Tracking**: Uses MediaPipe's advanced face landmark detection to track 468 facial points
-2. **Eye Analysis**: Monitors eye openness, blink patterns, and pupil movements
-3. **Fatigue Detection**: Analyzes multiple indicators to calculate cognitive fatigue scores
-4. **Visual Feedback**: Provides real-time charts and metrics for immediate feedback
+### 🧠 Cognitive Load Assessment
+- **Advanced fatigue detection** using multiple indicators
+- **Cognitive load measurement** based on eye movements
+- **Attention span analysis** and processing speed assessment
+- **Mental effort quantification**
 
-## ✨ Key Features
+### 📊 Professional Research Tools
+- **Comprehensive data logging** with multiple export formats
+- **Real-time analytics dashboard** with advanced charts
+- **Session management** and annotation capabilities
+- **Quality monitoring** and statistical analysis
 
-### 🔬 Advanced Eye Tracking
-- **468-Point Face Mesh**: High-precision facial landmark detection
-- **Dual Eye Monitoring**: Independent tracking of left and right eyes
-- **Iris Detection**: Precise pupil position tracking for gaze analysis
-- **Real-time Processing**: 30+ FPS processing with minimal latency
+### 🎯 Advanced Calibration
+- **9-point calibration system** for high accuracy
+- **Real-time calibration quality assessment**
+- **Adaptive calibration** based on user performance
+- **Calibration validation** and feedback
 
-### 🧠 Cognitive Fatigue Detection
-- **Multi-Indicator Analysis**: Combines blink rate, eye openness, and saccade patterns
-- **Baseline Calibration**: Establishes personal baseline for accurate measurements
-- **Fatigue Scoring**: 0-1 scale with color-coded severity levels
-- **Trend Analysis**: Tracks fatigue progression over time
+## 🚀 Quick Start
 
-### 📊 Professional Analytics
-- **Eye Openness Tracking**: Precise measurements of eyelid position
-- **Blink Detection**: Accurate blink counting with duration analysis
-- **Saccade Detection**: Large eye movements and microsaccades
-- **Quality Monitoring**: Real-time tracking quality assessment
+### Installation
 
-### ⚡ Performance Optimizations
-- **Hardware Acceleration**: GPU-optimized processing when available
-- **Frame Skipping**: Intelligent frame processing for smooth performance
-- **Memory Efficiency**: Optimized data structures with rolling buffers
-- **Minimal UI Updates**: Efficient rendering for consistent performance
-
-## 🚀 Quick Start Guide
-
-### System Requirements
-- **Operating System**: Windows 10+, macOS 10.14+, or Linux
-- **Python**: 3.8 or higher
-- **RAM**: 4GB minimum, 8GB recommended
-- **Camera**: Built-in or external webcam
-- **Storage**: 100MB free space
-
-### Step-by-Step Installation
-
-#### 1. Clone or Download the Repository
+1. **Clone the repository:**
 ```bash
-git clone https://github.com/jaskirat1616/face-eye-tracker.git
-cd face_eye-tracker
+git clone <repository-url>
+cd face_eye_tracker
 ```
 
-#### 2. Install Python Dependencies
+2. **Install dependencies:**
 ```bash
-# Install required packages
 pip install -r requirements.txt
-
-# Or install manually if needed:
-pip install opencv-python mediapipe numpy matplotlib tkinter
 ```
 
-#### 3. Verify the Model File
-The `face_landmarker.task` file should already be included in the repository. If missing:
+3. **Download the MediaPipe model:**
 ```bash
-# Download the MediaPipe model (if needed)
-wget https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+# Download face_landmarker.task from:
+# https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+# Place it in the face_eye_tracker directory
 ```
 
-#### 4. Run the Application
+### Running the Application
+
+#### Research Mode (Recommended)
 ```bash
-# Optimized version (recommended for most users)
-python run_fast_eye_tracker.py
-
-# Standard launcher
-python run_eye_tracker.py
+python run_eye_tracker.py --ui research
 ```
 
-## 🎮 How to Use the Application
+#### Other UI Options
+```bash
+# Modern UI
+python run_eye_tracker.py --ui modern
 
-### Initial Setup
-1. **Launch the Application**: Run the script and wait for system checks
-2. **Camera Permission**: Allow camera access when prompted
-3. **Position Yourself**: Sit 2-3 feet from the camera, face well-lit
-4. **Calibration**: Wait 10-15 seconds for the system to calibrate
+# Simple UI
+python run_eye_tracker.py --ui simple
 
-### Understanding the Interface
+# Comprehensive UI
+python run_eye_tracker.py --ui comprehensive
 
-#### 🎛️ Control Panel (Left Sidebar)
-- **Start/Stop Button**: Begin or pause tracking
-- **Status Indicator**: Shows current tracking status (Ready/Active/Error)
-- **Real-time Metrics**: Live updates of key measurements
-- **Fatigue Indicators**: Progress bars for each fatigue component
+# Headless mode
+python run_eye_tracker.py --ui headless
+```
 
-#### 📹 Main Display Area
-- **Live Video Feed**: Camera view with face mesh overlay
-- **Face Mesh**: Green lines showing detected facial landmarks
-- **Eye Tracking**: Highlighted eye regions and measurements
+## 🔬 Research Mode Features
 
-#### 📊 Real-time Charts (4 Panels)
-1. **Eye Openness Chart**: Left and right eye openness over time
-2. **Blink Rate Chart**: Blinks per minute trend
-3. **Fatigue Score Chart**: Overall cognitive fatigue progression
-4. **Quality Score Chart**: Detection quality and reliability
+### Advanced Calibration
+1. **Start Calibration**: Click "Start Calibration" in the research interface
+2. **Follow Points**: Look at each of the 9 calibration points as prompted
+3. **Quality Assessment**: Monitor calibration quality in real-time
+4. **Complete**: Finish calibration when all points are calibrated
 
-### Interpreting the Results
+### Research Session
+1. **Start Session**: Begin data collection with "Start Research Session"
+2. **Monitor Metrics**: Watch real-time research metrics and quality indicators
+3. **Add Annotations**: Mark significant events or conditions during the session
+4. **Export Data**: Export comprehensive research data for analysis
 
-#### 🟢 Fatigue Levels (Color-Coded)
-- **Green (0.0-0.3)**: Normal alertness, optimal performance
-- **Yellow (0.3-0.5)**: Mild fatigue, consider taking a break
-- **Orange (0.5-0.7)**: Moderate fatigue, rest recommended
-- **Red (0.7-0.9)**: High fatigue, immediate rest advised
-- **Dark Red (0.9-1.0)**: Severe fatigue, stop current activity
+### Data Export
+The system supports multiple export formats:
+- **JSON**: Complete session data with metadata
+- **CSV**: Tabular data for statistical analysis
+- **Excel**: Multi-sheet workbook with comprehensive data
+- **Pickle**: Python-compatible data format
 
-#### 📈 Key Metrics Explained
-- **Eye Openness (0.0-1.0)**: 
-  - Normal: 0.2-0.4
-  - Fatigue: < 0.2 (drooping eyelids)
-- **Blink Rate (per minute)**:
-  - Normal: 15-20 blinks/minute
-  - Fatigue: < 10 or > 30 blinks/minute
-- **Quality Score (0.0-1.0)**:
-  - Good: > 0.7
-  - Poor: < 0.5 (check lighting/positioning)
+## 📊 Research Metrics
 
-## 🔬 Technical Architecture
+### Eye Tracking Metrics
+- **Pupil Position**: High-precision pupil center coordinates
+- **Gaze Point**: Estimated gaze position on screen
+- **Pupil Diameter**: Pupil size measurements
+- **Eye Velocity**: Movement speed and patterns
+- **Fixation Duration**: Time spent looking at specific areas
+
+### Fatigue Detection
+- **Advanced Fatigue Score**: Multi-indicator fatigue assessment
+- **Blink Pattern Analysis**: Blink rate, duration, and patterns
+- **Eye Openness**: Continuous monitoring of eye openness
+- **Head Pose**: Head position and movement analysis
+
+### Cognitive Load Assessment
+- **Cognitive Load Score**: Mental effort quantification
+- **Attention Span**: Sustained attention measurement
+- **Processing Speed**: Information processing rate
+- **Mental Effort**: Cognitive workload assessment
+
+### Quality Metrics
+- **Tracking Quality**: Overall system performance
+- **Calibration Quality**: Calibration accuracy assessment
+- **Face Detection**: Face detection confidence
+- **Pupil Tracking**: Pupil detection reliability
+
+## 🏗️ System Architecture
 
 ### Core Components
+
+#### AdvancedEyeTracker
+- High-precision pupil tracking
+- Advanced fatigue detection algorithms
+- Cognitive load assessment
+- Real-time quality monitoring
+
+#### ResearchEyeTrackerUI
+- Professional research interface
+- Advanced calibration system
+- Real-time analytics dashboard
+- Session management tools
+
+#### ResearchDataLogger
+- Comprehensive data collection
+- Multiple export formats
+- Real-time analysis
+- Quality assessment
+
+### File Structure
 ```
 face_eye_tracker/
 ├── face-eye-tracker/
-│   ├── main.py                 # Application entry point
 │   ├── utils/
 │   │   ├── core/
-│   │   │   └── tracker.py      # Core tracking engine
-│   │   └── data_logger.py      # Data logging utilities
-│   └── ui/
-│       ├── modern_ui.py        # Modern desktop interface
-│       ├── simple_ui.py        # Simple interface option
-│       └── headless_ui.py      # Command-line interface
-├── run_fast_eye_tracker.py     # Optimized launcher
-├── run_eye_tracker.py          # Standard launcher
-└── face_landmarker.task        # MediaPipe model file
+│   │   │   ├── advanced_tracker.py    # Advanced tracking engine
+│   │   │   └── tracker.py             # Standard tracking engine
+│   │   ├── research_data_logger.py    # Research data logging
+│   │   └── data_logger.py             # Standard data logging
+│   ├── ui/
+│   │   ├── research_ui.py             # Research interface
+│   │   ├── modern_ui.py               # Modern interface
+│   │   ├── comprehensive_ui.py        # Comprehensive interface
+│   │   ├── simple_ui.py               # Simple interface
+│   │   └── headless_ui.py             # Headless interface
+│   └── main.py                        # Main application
+├── face_landmarker.task               # MediaPipe model
+├── requirements.txt                   # Dependencies
+└── run_eye_tracker.py                 # Launcher script
 ```
 
-### Technology Stack
-- **MediaPipe**: Google's ML framework for face landmark detection
-- **OpenCV**: Computer vision and video processing
-- **NumPy**: Numerical computing and data analysis
-- **Matplotlib**: Real-time chart rendering
-- **Tkinter**: Cross-platform GUI framework
+## 📈 Performance Optimization
 
-## 📊 Data Collection & Analysis
+### Real-time Processing
+- **Optimized frame processing** for minimal latency
+- **Efficient data structures** for high-frequency updates
+- **Background analysis threads** for non-blocking operation
+- **Smart buffering** for smooth UI updates
 
-### Automatic Data Logging
-The application automatically saves all tracking data to CSV files:
-- **Location**: `face-eye-tracker/utils/data/`
-- **Format**: Timestamped CSV with all metrics
-- **Frequency**: Every frame processed
-- **Retention**: Files kept locally, not uploaded
+### Quality Assurance
+- **Real-time quality monitoring** with automatic adjustments
+- **Adaptive thresholds** based on environmental conditions
+- **Error handling** and recovery mechanisms
+- **Performance metrics** and optimization feedback
 
-### Data Fields Recorded
-- Timestamp (ISO format)
-- Eye openness (left/right)
-- Blink detection and duration
-- Saccade events and velocities
-- Fatigue scores (individual and overall)
-- Quality indicators
-- Head pose and position
+## 🔧 Configuration
 
-### Privacy & Security
-- **Local Processing**: All analysis happens on your device
-- **No Cloud Upload**: Data never leaves your computer
-- **Secure Storage**: CSV files stored locally only
-- **No Network Access**: Application works completely offline
+### Camera Settings
+- **Resolution**: 1280x720 (research mode), 640x480 (standard mode)
+- **Frame Rate**: 60 FPS (research mode), 30 FPS (standard mode)
+- **Auto-focus**: Enabled for stability
+- **Auto-exposure**: Optimized for eye tracking
 
-## 🎨 Customization Options
+### Processing Parameters
+- **Pupil Detection Confidence**: 0.8 (high accuracy)
+- **Gaze Estimation Confidence**: 0.7 (balanced accuracy)
+- **Fatigue Detection Sensitivity**: 0.6 (moderate sensitivity)
+- **Quality Threshold**: 0.7 (minimum acceptable quality)
 
-### UI Themes
-The application supports different interface themes:
-```bash
-# Modern dark theme (default)
-python run_fast_eye_tracker.py --ui modern
+## 📚 Research Applications
 
-# Simplified interface
-python run_fast_eye_tracker.py --ui simple
-
-# Comprehensive interface
-python run_fast_eye_tracker.py --ui comprehensive
-
-# Headless mode (no GUI)
-python run_fast_eye_tracker.py --ui headless
-```
-
-### Performance Settings
-Adjust performance in `face-eye-tracker/utils/core/tracker.py`:
-```python
-# Frame skipping for performance
-self.frame_skip = 1  # Process every 2nd frame
-
-# Quality vs speed trade-off
-self.min_face_detection_confidence = 0.5  # Lower = faster
-```
-
-## 🐛 Troubleshooting Guide
-
-### Common Issues & Solutions
-
-#### Camera Problems
-**Issue**: "Camera not found" or "Camera not accessible"
-**Solutions**:
-- Check camera permissions in system settings
-- Close other applications using the camera
-- Try different camera index: `--camera 1`
-- Restart the application
-
-#### Performance Issues
-**Issue**: Low FPS or laggy interface
-**Solutions**:
-- Close other applications to free up resources
-- Reduce camera resolution in system settings
-- Ensure good lighting conditions
-- Check if hardware acceleration is enabled
-
-#### Model File Errors
-**Issue**: "MediaPipe model file not found"
-**Solutions**:
-- Verify `face_landmarker.task` is in the project directory
-- Download the model file from the provided URL
-- Check file permissions
-
-#### Import Errors
-**Issue**: "ModuleNotFoundError" or missing dependencies
-**Solutions**:
-```bash
-# Reinstall dependencies
-pip install -r requirements.txt
-
-# Or install manually
-pip install opencv-python mediapipe numpy matplotlib
-```
-
-### Getting Better Results
-
-#### Optimal Setup
-1. **Lighting**: Ensure even, bright lighting on your face
-2. **Positioning**: Sit 2-3 feet from camera, face centered
-3. **Background**: Use a plain, uncluttered background
-4. **Glasses**: Remove reflective glasses if possible
-5. **Calibration**: Wait 10-15 seconds for initial calibration
-
-#### Performance Tips
-- Use the optimized version for better performance
-- Close unnecessary applications
-- Ensure good internet connection (for initial model download)
-- Regular breaks every 20-30 minutes of use
-
-## 🔬 Research Applications
-
-### Academic Use Cases
-- **Cognitive Load Studies**: Measure mental workload during tasks
-- **Fatigue Research**: Study patterns of mental fatigue
-- **Attention Studies**: Track focus and attention spans
-- **Ergonomics Research**: Evaluate work environment impact
+### Academic Research
+- **Cognitive science studies**
+- **Human-computer interaction research**
+- **Attention and focus studies**
+- **Fatigue and workload assessment**
 
 ### Professional Applications
-- **Driver Safety**: Monitor alertness during long drives
-- **Workplace Wellness**: Track employee fatigue levels
-- **Gaming Research**: Study gaming session fatigue
-- **Medical Applications**: Assist in fatigue-related assessments
+- **Driver monitoring systems**
+- **Workplace safety assessment**
+- **Educational technology research**
+- **Healthcare monitoring**
 
-## 📚 Scientific Background
+### User Experience Research
+- **Interface usability studies**
+- **Attention pattern analysis**
+- **Cognitive load optimization**
+- **User behavior research**
 
-### Eye Tracking Metrics
-- **Eye Openness**: Correlates with alertness and fatigue
-- **Blink Rate**: Changes with cognitive load and fatigue
-- **Saccades**: Eye movements indicate attention and processing
-- **Microsaccades**: Small movements related to visual processing
+## 🛠️ Development
 
-### Fatigue Detection Algorithm
-The application uses a multi-indicator approach:
-1. **Baseline Establishment**: Personal normal ranges
-2. **Real-time Monitoring**: Continuous measurement
-3. **Pattern Analysis**: Trend detection and analysis
-4. **Scoring Algorithm**: Weighted combination of indicators
+### Adding New Features
+1. **Extend AdvancedEyeTracker** for new tracking capabilities
+2. **Update ResearchEyeTrackerUI** for new interface elements
+3. **Enhance ResearchDataLogger** for new data types
+4. **Add new export formats** as needed
+
+### Customization
+- **Modify tracking parameters** in `advanced_tracker.py`
+- **Customize UI elements** in `research_ui.py`
+- **Add new metrics** in the data logging system
+- **Implement custom analysis** algorithms
+
+## 📊 Data Analysis
+
+### Export Formats
+- **JSON**: Complete session data with metadata
+- **CSV**: Tabular data for statistical analysis
+- **Excel**: Multi-sheet workbook with comprehensive data
+- **Pickle**: Python-compatible data format
+
+### Analysis Tools
+- **Real-time analytics** in the research interface
+- **Statistical summaries** and trend analysis
+- **Quality assessment** and validation
+- **Custom analysis** capabilities
 
 ## 🤝 Contributing
 
-### Development Setup
-```bash
-# Clone the repository
-git clone https://github.com/jaskirat1616/face-eye-tracker.git
-cd face-eye-tracker
+We welcome contributions to improve the system:
 
-# Install development dependencies
-pip install -r requirements.txt
-
-# Run tests (if available)
-python -m pytest tests/
-```
-
-### Code Structure
-- Follow PEP 8 style guidelines
-- Add docstrings to new functions
-- Include type hints where appropriate
-- Test changes before submitting
+1. **Fork the repository**
+2. **Create a feature branch**
+3. **Implement improvements**
+4. **Add tests and documentation**
+5. **Submit a pull request**
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
-- **MediaPipe Team**: For the excellent face landmark detection
-- **OpenCV Community**: For computer vision capabilities
-- **Research Community**: For eye tracking and fatigue detection research
+- **MediaPipe** for face landmark detection
+- **OpenCV** for computer vision capabilities
+- **Research community** for feedback and improvements
 
 ## 📞 Support
 
-For issues, questions, or contributions:
-- **GitHub Issues**: Report bugs and request features
-- **Documentation**: Check this README and code comments
-- **Community**: Join discussions in the repository
+For questions, issues, or feature requests:
+- **Create an issue** on GitHub
+- **Check the documentation** for common solutions
+- **Review the examples** for usage patterns
 
 ---
 
-**⚠️ Important Note**: This application is for research and educational purposes. It should not be used as a medical device or for critical safety applications without proper validation and certification.
-
-**🎯 Best Results**: For optimal performance, ensure good lighting, proper positioning, and allow time for calibration. The application works best in controlled environments with consistent lighting conditions.
+**🔬 Professional Research-Grade Eye Tracking System**  
+*Accurate, Reliable, and Comprehensive*

@@ -24,16 +24,13 @@ class HeadlessUI:
                 time.sleep(0.01)
                 continue
 
-            result = self.tracker.process_frame(frame)
-            if result is None:
-                cv2.imshow('Headless Eye Tracker', frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    self.is_running = False
-                continue
+            # Process frame - advanced tracker returns processed frame directly
+            processed_frame = self.tracker.process_frame(frame)
             
-            self.data_logger.log_data(result)
-
-            processed_frame = result.get('frame', frame)
+            # Get current data for logging
+            current_data = self.tracker.get_current_data()
+            if current_data:
+                self.data_logger.log_data(current_data)
 
             # Display the frame
             cv2.imshow('Headless Eye Tracker', processed_frame)
