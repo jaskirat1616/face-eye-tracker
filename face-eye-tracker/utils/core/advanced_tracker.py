@@ -31,6 +31,14 @@ from scipy import signal
 from scipy.stats import linregress
 import threading
 import queue
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+import matplotlib.animation as animation
+from matplotlib.gridspec import GridSpec
+from matplotlib import style
+import json
+import os
 
 # Suppress warnings for clean operation
 warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf")
@@ -149,12 +157,30 @@ class AdvancedEyeTracker:
             'pupil_center_right': [468, 469, 470, 471, 472],
             'head_pose': [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109]
         }
+        
+        # Vertical pairs for eye openness (indices are positions within the eye landmark list)
+        self.LEFT_EYE_VERTICAL_PAIRS = [(1, 5), (2, 4), (3, 7), (8, 12), (9, 11), (0, 6)]
+        self.RIGHT_EYE_VERTICAL_PAIRS = [(1, 5), (2, 4), (3, 7), (8, 12), (9, 11), (0, 6)]
     
     def _result_callback(self, result: vision.FaceLandmarkerResult, output_image, timestamp_ms: int):
         """Advanced callback for MediaPipe results"""
         self.result = result
         self.timestamp = timestamp_ms
     
+    def _calculate_eye_openness(self, face_landmarks, eye_indices, vertical_pairs):
+        eye_points = np.array([[face_landmarks[i].x, face_landmarks[i].y] for i in eye_indices])
+        vertical_distances = []
+        for a, b in vertical_pairs:
+            if a < len(eye_points) and b < len(eye_points):
+                vertical_distances.append(abs(eye_points[a][1] - eye_points[b][1]))
+        if vertical_distances:
+            weights = [1.0, 1.2, 1.5, 1.2, 1.0, 0.8][:len(vertical_distances)]
+            vertical_distance = np.average(vertical_distances, weights=weights)
+        else:
+            vertical_distance = np.max(eye_points[:, 1]) - np.min(eye_points[:, 1])
+        horizontal_distance = np.max(eye_points[:, 0]) - np.min(eye_points[:, 0])
+        return (vertical_distance / horizontal_distance) if horizontal_distance > 0 else 0.0
+
     def start_calibration(self):
         """Start advanced calibration procedure"""
         self.calibration_points = [
@@ -371,6 +397,8 @@ class AdvancedEyeTracker:
             
             # Extract advanced data
             face_landmarks = self.result.face_landmarks[0]
+            
+            # Build advanced data locally (no super call)
             advanced_data = self._extract_advanced_data(face_landmarks, frame)
             
             # Queue for analysis
@@ -427,11 +455,19 @@ class AdvancedEyeTracker:
         # Add missing fields that research UI expects
         data['gaze_stability'] = self._calculate_gaze_stability()
         data['cognitive_load_score'] = self._calculate_cognitive_load_score()
-        data['blink_rate'] = self._calculate_blink_rate()
-        data['saccade_rate'] = self._calculate_saccade_rate()
         data['attention_span'] = self._calculate_attention_span(data)
         data['processing_speed'] = self._calculate_processing_speed(data)
         data['mental_effort'] = self._calculate_mental_effort(data)
+
+        # Eye openness (for charts)
+        data['left_eye_openness'] = self._calculate_eye_openness(
+            face_landmarks, self.landmark_indices['left_eye'], self.LEFT_EYE_VERTICAL_PAIRS)
+        data['right_eye_openness'] = self._calculate_eye_openness(
+            face_landmarks, self.landmark_indices['right_eye'], self.RIGHT_EYE_VERTICAL_PAIRS)
+
+        # Event rates for charts
+        data['blink_rate'] = self._calculate_blink_rate()
+        data['saccade_rate'] = self._calculate_saccade_rate()
         
         return data
     
@@ -488,8 +524,10 @@ class AdvancedEyeTracker:
                 velocities.append(velocity)
             
             if velocities:
-                data['eye_velocity'] = np.mean(velocities)
+                avg_vel = float(np.mean(velocities))
+                data['eye_velocity'] = avg_vel
                 data['fixation_duration'] = self._calculate_fixation_duration(velocities)
+                self.eye_movement_history.append(avg_vel)
         
         return data
     

@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import matplotlib.animation as animation
+from matplotlib.gridspec import GridSpec
 from matplotlib import style
 import json
 import os
@@ -89,6 +90,8 @@ class ResearchEyeTrackerUI:
         # Chart data
         self.chart_data = {
             'time': [],
+            'left_eye_openness': [],
+            'right_eye_openness': [],
             'fatigue': [],
             'quality': [],
             'pupil_diameter': [],
@@ -100,7 +103,7 @@ class ResearchEyeTrackerUI:
             'mental_effort': [],
             'blink_rate': [],
             'saccade_rate': [],
-            'fixation_duration': [] # Added fixation duration
+            'fixation_duration': [] 
         }
         
     def create_ui(self):
@@ -116,9 +119,9 @@ class ResearchEyeTrackerUI:
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         
         # Configure grid weights
-        self.root.grid_rowconfigure(0, weight=3)
-        self.root.grid_rowconfigure(1, weight=2)
-        self.root.grid_columnconfigure(1, weight=2)
+        self.root.grid_rowconfigure(0, weight=5)
+        self.root.grid_rowconfigure(1, weight=1)
+        self.root.grid_columnconfigure(1, weight=3)
         self.root.grid_columnconfigure(2, weight=1)
         
         # Create UI components
@@ -129,14 +132,31 @@ class ResearchEyeTrackerUI:
         self.create_calibration_interface()
         
     def create_research_sidebar(self):
-        """Create research sidebar with advanced controls"""
-        sidebar = tk.Frame(self.root, bg='#f8f9fa', width=320)
-        sidebar.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
-        sidebar.grid_propagate(False)
+        """Create a scrollable research sidebar with advanced controls"""
+        sidebar_container = tk.Frame(self.root, bg='#f8f9fa', width=350)
+        sidebar_container.grid(row=0, column=0, rowspan=2, sticky="nsew", padx=2, pady=2)
+        sidebar_container.grid_propagate(False)
+        
+        canvas = tk.Canvas(sidebar_container, bg='#f8f9fa', highlightthickness=0)
+        scrollbar = ttk.Scrollbar(sidebar_container, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg='#f8f9fa')
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # All sidebar content is now packed into the scrollable_frame
         
         # Research title
-        title_frame = tk.Frame(sidebar, bg='#f8f9fa')
-        title_frame.pack(fill='x', pady=(20, 25))
+        title_frame = tk.Frame(scrollable_frame, bg='#f8f9fa')
+        title_frame.pack(fill='x', pady=(20, 25), padx=10)
         
         title_label = tk.Label(title_frame, text="Research Eye Tracking System", 
                               font=("SF Pro Display", 16, "bold"), 
@@ -149,19 +169,19 @@ class ResearchEyeTrackerUI:
         subtitle_label.pack()
         
         # Session controls
-        self.create_session_controls(sidebar)
+        self.create_session_controls(scrollable_frame)
         
         # Calibration controls
-        self.create_calibration_controls(sidebar)
+        self.create_calibration_controls(scrollable_frame)
         
         # Research controls
-        self.create_research_controls(sidebar)
+        self.create_research_controls(scrollable_frame)
         
         # Status and quality indicators
-        self.create_status_indicators(sidebar)
+        self.create_status_indicators(scrollable_frame)
         
         # Data validation panel
-        self.create_data_validation_panel(sidebar)
+        self.create_data_validation_panel(scrollable_frame)
     
     def create_session_controls(self, parent):
         """Create session management controls"""
@@ -545,41 +565,30 @@ class ResearchEyeTrackerUI:
             self.research_metrics[key] = value_label
     
     def create_advanced_charts(self):
-        """Create advanced research charts"""
+        """Create consolidated and advanced research charts"""
         charts_frame = tk.Frame(self.root, bg='#ffffff', relief='flat', bd=1)
         charts_frame.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=5, pady=5)
         
-        # Charts title
         charts_title = tk.Label(charts_frame, text="Research Analytics Dashboard", 
-                               font=("SF Pro Display", 18, "bold"), 
-                               bg='#ffffff', fg='#212529')
-        charts_title.pack(pady=15)
-        
-        # Create figure with advanced styling
-        self.fig = Figure(figsize=(16, 12), facecolor='#ffffff', dpi=100)
-        
-        # Create subplots for research metrics - expanded to show more data
-        self.ax1 = self.fig.add_subplot(3, 4, 1)   # Fatigue over time
-        self.ax2 = self.fig.add_subplot(3, 4, 2)   # Quality metrics
-        self.ax3 = self.fig.add_subplot(3, 4, 3)   # Pupil diameter
-        self.ax4 = self.fig.add_subplot(3, 4, 4)   # Gaze stability
-        self.ax5 = self.fig.add_subplot(3, 4, 5)   # Eye velocity
-        self.ax6 = self.fig.add_subplot(3, 4, 6)   # Fixation duration
-        self.ax7 = self.fig.add_subplot(3, 4, 7)   # Cognitive load
-        self.ax8 = self.fig.add_subplot(3, 4, 8)   # Attention span
-        self.ax9 = self.fig.add_subplot(3, 4, 9)   # Processing speed
-        self.ax10 = self.fig.add_subplot(3, 4, 10) # Mental effort
-        self.ax11 = self.fig.add_subplot(3, 4, 11) # Blink rate
-        self.ax12 = self.fig.add_subplot(3, 4, 12) # Saccade rate
-        
-        # Configure subplots
-        axes = [self.ax1, self.ax2, self.ax3, self.ax4, self.ax5, self.ax6, 
-                self.ax7, self.ax8, self.ax9, self.ax10, self.ax11, self.ax12]
-        titles = ['Fatigue Score', 'Quality Metrics', 'Pupil Diameter', 
-                 'Gaze Stability', 'Eye Velocity', 'Fixation Duration',
-                 'Cognitive Load', 'Attention Span', 'Processing Speed',
-                 'Mental Effort', 'Blink Rate', 'Saccade Rate']
-        
+                           font=("SF Pro Display", 18, "bold"), 
+                           bg='#ffffff', fg='#212529')
+        charts_title.pack(pady=10)
+
+        self.fig = Figure(figsize=(12, 6), facecolor='#ffffff', dpi=100)
+        gs = GridSpec(3, 2, figure=self.fig)
+
+        self.ax1 = self.fig.add_subplot(gs[0, 0])
+        self.ax2 = self.fig.add_subplot(gs[0, 1])
+        self.ax3 = self.fig.add_subplot(gs[1, 0])
+        self.ax4 = self.fig.add_subplot(gs[1, 1])
+        self.ax5 = self.fig.add_subplot(gs[2, :])
+
+        axes = [self.ax1, self.ax2, self.ax3, self.ax4, self.ax5]
+        titles = [
+            'Eye State (Openness)', 'Event Rates (per second)', 'Cognitive State',
+            'Data Quality', 'Advanced Neurometrics'
+        ]
+    
         for ax, title in zip(axes, titles):
             ax.set_facecolor('#f8f9fa')
             ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
@@ -588,16 +597,15 @@ class ResearchEyeTrackerUI:
             ax.spines['right'].set_visible(False)
             ax.spines['left'].set_color('#dee2e6')
             ax.spines['bottom'].set_color('#dee2e6')
-            ax.set_title(title, color='#212529', fontsize=11, fontweight='bold', pad=8)
-        
-        # Adjust layout
-        self.fig.tight_layout(pad=2.0)
-        
-        # Create canvas
+            ax.set_title(title, color='#212529', fontsize=10, fontweight='bold', pad=6)
+
+        self.fig.tight_layout(pad=1.5)
+
         self.canvas = FigureCanvasTkAgg(self.fig, charts_frame)
-        self.canvas.get_tk_widget().pack(fill='both', expand=True, padx=20, pady=(0, 20))
-        
-        # Start animation
+        canvas_widget = self.canvas.get_tk_widget()
+        canvas_widget.pack(fill='both', expand=True, padx=16, pady=(0, 12))
+        canvas_widget.configure(height=360)  # Cap charts pane height
+
         self.start_chart_animation()
     
     def create_calibration_interface(self):
@@ -626,6 +634,8 @@ class ResearchEyeTrackerUI:
             
             # Update chart data
             self.chart_data['time'].append(current_time)
+            self.chart_data['left_eye_openness'].append(float(data.get('left_eye_openness', 0)))
+            self.chart_data['right_eye_openness'].append(float(data.get('right_eye_openness', 0)))
             self.chart_data['fatigue'].append(float(data.get('advanced_fatigue_score', 0)))
             self.chart_data['quality'].append(float(data.get('advanced_quality_score', 0)))
             self.chart_data['pupil_diameter'].append(float(data.get('pupil_diameter', 0)))
@@ -637,7 +647,7 @@ class ResearchEyeTrackerUI:
             self.chart_data['mental_effort'].append(float(data.get('mental_effort', 0)))
             self.chart_data['blink_rate'].append(float(data.get('blink_rate', 0)))
             self.chart_data['saccade_rate'].append(float(data.get('saccade_rate', 0)))
-            self.chart_data['fixation_duration'].append(float(data.get('fixation_duration', 0))) # Append fixation duration
+            self.chart_data['fixation_duration'].append(float(data.get('fixation_duration', 0)))
             
             # Keep only last 50 data points
             max_points = 50
@@ -669,22 +679,20 @@ class ResearchEyeTrackerUI:
                 self.chart_initialized = True
             
             # Update line data
-            self.chart_lines['fatigue'].set_data(times, self.chart_data['fatigue'])
-            self.chart_lines['quality'].set_data(times, self.chart_data['quality'])
-            self.chart_lines['pupil_diameter'].set_data(times, self.chart_data['pupil_diameter'])
-            self.chart_lines['gaze_stability'].set_data(times, self.chart_data['gaze_stability'])
-            self.chart_lines['eye_velocity'].set_data(times, self.chart_data['eye_velocity'])
-            self.chart_lines['fixation_duration'].set_data(times, self.chart_data['fixation_duration'])
-            self.chart_lines['cognitive_load'].set_data(times, self.chart_data['cognitive_load'])
-            self.chart_lines['attention_span'].set_data(times, self.chart_data['attention_span'])
-            self.chart_lines['processing_speed'].set_data(times, self.chart_data['processing_speed'])
-            self.chart_lines['mental_effort'].set_data(times, self.chart_data['mental_effort'])
+            self.chart_lines['left_eye'].set_data(times, self.chart_data['left_eye_openness'])
+            self.chart_lines['right_eye'].set_data(times, self.chart_data['right_eye_openness'])
             self.chart_lines['blink_rate'].set_data(times, self.chart_data['blink_rate'])
             self.chart_lines['saccade_rate'].set_data(times, self.chart_data['saccade_rate'])
+            self.chart_lines['fixation_duration'].set_data(times, self.chart_data['fixation_duration'])
+            self.chart_lines['fatigue'].set_data(times, self.chart_data['fatigue'])
+            self.chart_lines['cognitive_load'].set_data(times, self.chart_data['cognitive_load'])
+            self.chart_lines['quality'].set_data(times, self.chart_data['quality'])
+            self.chart_lines['gaze_stability'].set_data(times, self.chart_data['gaze_stability'])
+            self.chart_lines['pupil_diameter'].set_data(times, self.chart_data['pupil_diameter'])
+            self.chart_lines['eye_velocity'].set_data(times, self.chart_data['eye_velocity'])
             
             # Update axis limits
-            for ax in [self.ax1, self.ax2, self.ax3, self.ax4, self.ax5, self.ax6, 
-                      self.ax7, self.ax8, self.ax9, self.ax10, self.ax11, self.ax12]:
+            for ax in [self.ax1, self.ax2, self.ax3, self.ax4, self.ax5, self.ax5_twin]:
                 ax.relim()
                 ax.autoscale_view()
             
@@ -697,42 +705,40 @@ class ResearchEyeTrackerUI:
     def initialize_charts(self):
         """Initialize chart lines"""
         try:
-            # Fatigue chart
-            self.chart_lines['fatigue'], = self.ax1.plot([], [], color='#dc3545', linewidth=2, alpha=0.8)
+            # Ax1: Eye State
+            self.chart_lines['left_eye'], = self.ax1.plot([], [], color='#007bff', lw=2, alpha=0.9, label='Left Eye')
+            self.chart_lines['right_eye'], = self.ax1.plot([], [], color='#28a745', lw=2, alpha=0.9, label='Right Eye')
+            self.ax1.legend(fontsize=8)
+
+            # Ax2: Event Rates
+            self.chart_lines['blink_rate'], = self.ax2.plot([], [], color='#ffc107', lw=2, alpha=0.9, label='Blink Rate')
+            self.chart_lines['saccade_rate'], = self.ax2.plot([], [], color='#fd7e14', lw=2, alpha=0.9, label='Saccade Rate')
+            self.chart_lines['fixation_duration'], = self.ax2.plot([], [], color='#17a2b8', lw=2, alpha=0.9, label='Fixation Duration')
+            self.ax2.legend(fontsize=8)
+
+            # Ax3: Cognitive State
+            self.chart_lines['fatigue'], = self.ax3.plot([], [], color='#dc3545', lw=2, alpha=0.9, label='Fatigue')
+            self.chart_lines['cognitive_load'], = self.ax3.plot([], [], color='#6f42c1', lw=2, alpha=0.9, label='Cognitive Load')
+            self.ax3.legend(fontsize=8)
+
+            # Ax4: Data Quality
+            self.chart_lines['quality'], = self.ax4.plot([], [], color='#20c997', lw=2, alpha=0.9, label='Detection Quality')
+            self.chart_lines['gaze_stability'], = self.ax4.plot([], [], color='#6610f2', lw=2, alpha=0.9, label='Gaze Stability')
+            self.ax4.legend(fontsize=8)
+
+            # Ax5: Advanced Neurometrics (with twin y-axis)
+            self.ax5_twin = self.ax5.twinx()
+            self.chart_lines['pupil_diameter'], = self.ax5.plot([], [], color='#e83e8c', lw=2, alpha=0.9, label='Pupil Diameter (px)')
+            self.chart_lines['eye_velocity'], = self.ax5_twin.plot([], [], color='#17a2b8', lw=2, alpha=0.9, label='Eye Velocity (°/s)')
             
-            # Quality chart
-            self.chart_lines['quality'], = self.ax2.plot([], [], color='#6f42c1', linewidth=2, alpha=0.8)
-            
-            # Pupil diameter chart
-            self.chart_lines['pupil_diameter'], = self.ax3.plot([], [], color='#20c997', linewidth=2, alpha=0.8)
-            
-            # Gaze stability chart
-            self.chart_lines['gaze_stability'], = self.ax4.plot([], [], color='#17a2b8', linewidth=2, alpha=0.8)
-            
-            # Eye velocity chart
-            self.chart_lines['eye_velocity'], = self.ax5.plot([], [], color='#ffc107', linewidth=2, alpha=0.8)
-            
-            # Fixation duration chart
-            self.chart_lines['fixation_duration'], = self.ax6.plot([], [], color='#e83e8c', linewidth=2, alpha=0.8)
-            
-            # Cognitive load chart
-            self.chart_lines['cognitive_load'], = self.ax7.plot([], [], color='#fd7e14', linewidth=2, alpha=0.8)
-            
-            # Attention span chart
-            self.chart_lines['attention_span'], = self.ax8.plot([], [], color='#6f42c1', linewidth=2, alpha=0.8)
-            
-            # Processing speed chart
-            self.chart_lines['processing_speed'], = self.ax9.plot([], [], color='#28a745', linewidth=2, alpha=0.8)
-            
-            # Mental effort chart
-            self.chart_lines['mental_effort'], = self.ax10.plot([], [], color='#dc3545', linewidth=2, alpha=0.8)
-            
-            # Blink rate chart
-            self.chart_lines['blink_rate'], = self.ax11.plot([], [], color='#17a2b8', linewidth=2, alpha=0.8)
-            
-            # Saccade rate chart
-            self.chart_lines['saccade_rate'], = self.ax12.plot([], [], color='#ffc107', linewidth=2, alpha=0.8)
-            
+            self.ax5.set_ylabel('Pupil Diameter (px)', color='#e83e8c')
+            self.ax5_twin.set_ylabel('Eye Velocity (°/s)', color='#17a2b8')
+            self.ax5.tick_params(axis='y', labelcolor='#e83e8c')
+            self.ax5_twin.tick_params(axis='y', labelcolor='#17a2b8')
+            lines = [self.chart_lines['pupil_diameter'], self.chart_lines['eye_velocity']]
+            labels = [l.get_label() for l in lines]
+            self.ax5.legend(lines, labels, loc='upper left', fontsize=8)
+
         except Exception as e:
             print(f"Chart initialization error: {e}")
     
@@ -1207,7 +1213,7 @@ class ResearchEyeTrackerUI:
             # Resize for display
             height, width = frame.shape[:2]
             target_width = 640
-            target_height = 480
+            target_height = 720
             
             scale_x = target_width / width
             scale_y = target_height / height
