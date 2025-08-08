@@ -198,7 +198,8 @@ def main():
         else:
             tracker = tracker_class(camera_index=args.camera)
         
-        data_logger = DataLogger(enable_logging=args.ui == "research")
+        # Disable CSV logging for research mode - research UI handles its own data logging
+        data_logger = DataLogger(enable_logging=args.ui != "research")
         
         # Initialize UI
         ui = ui_class(tracker, data_logger)
