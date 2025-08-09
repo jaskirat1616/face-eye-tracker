@@ -41,25 +41,19 @@ class ResearchDataLogger:
         self.session_events = []
         
         # Real-time analysis buffers
+        # Only keep analysis buffers for blink, saccade, and fixation
         self.analysis_buffers = {
-            'fatigue_scores': deque(maxlen=1000),
-            'quality_scores': deque(maxlen=1000),
-            'pupil_diameters': deque(maxlen=1000),
-            'gaze_positions': deque(maxlen=1000),
-            'eye_velocities': deque(maxlen=1000),
             'blink_events': deque(maxlen=1000),
-            'saccade_events': deque(maxlen=1000)
+            'saccade_events': deque(maxlen=1000),
+            'fixation_durations': deque(maxlen=1000)
         }
         
         # Statistical tracking
         self.statistics = {
             'session_duration': 0,
             'total_frames': 0,
-            'average_fatigue': 0,
-            'average_quality': 0,
             'total_blinks': 0,
-            'total_saccades': 0,
-            'calibration_quality': 0
+            'total_saccades': 0
         }
         
         # Export formats
@@ -203,35 +197,21 @@ class ResearchDataLogger:
         self.session_events.append(event)
     
     def _update_analysis_buffers(self, data):
-        """Update real-time analysis buffers"""
-        # Fatigue scores
-        if 'advanced_fatigue_score' in data:
-            self.analysis_buffers['fatigue_scores'].append(data['advanced_fatigue_score'])
-        
-        # Quality scores
-        if 'advanced_quality_score' in data:
-            self.analysis_buffers['quality_scores'].append(data['advanced_quality_score'])
-        
-        # Pupil diameters
-        if 'pupil_diameter' in data:
-            self.analysis_buffers['pupil_diameters'].append(data['pupil_diameter'])
-        
-        # Gaze positions
-        if 'gaze_point' in data:
-            self.analysis_buffers['gaze_positions'].append(data['gaze_point'])
-        
-        # Eye velocities
-        if 'eye_velocity' in data:
-            self.analysis_buffers['eye_velocities'].append(data['eye_velocity'])
+        # Only update blink, saccade, and fixation buffers
+        if 'blink_rate' in data:
+            self.analysis_buffers['blink_events'].append(data['blink_rate'])
+        if 'saccade_rate' in data:
+            self.analysis_buffers['saccade_events'].append(data['saccade_rate'])
+        if 'fixation_duration' in data:
+            self.analysis_buffers['fixation_durations'].append(data['fixation_duration'])
     
     def _update_statistics(self, data):
         """Update session statistics"""
         # Update averages
-        if self.analysis_buffers['fatigue_scores']:
-            self.statistics['average_fatigue'] = np.mean(list(self.analysis_buffers['fatigue_scores']))
-        
-        if self.analysis_buffers['quality_scores']:
-            self.statistics['average_quality'] = np.mean(list(self.analysis_buffers['quality_scores']))
+        if self.analysis_buffers['blink_events']:
+            self.statistics['total_blinks'] = sum(list(self.analysis_buffers['blink_events']))
+        if self.analysis_buffers['saccade_events']:
+            self.statistics['total_saccades'] = sum(list(self.analysis_buffers['saccade_events']))
         
         # Update session duration
         if self.session_start_time:
@@ -261,8 +241,8 @@ class ResearchDataLogger:
         session_duration = time.time() - self.session_start_time
         
         # Calculate averages from analysis buffers
-        avg_fatigue = np.mean(list(self.analysis_buffers['fatigue_scores'])) if self.analysis_buffers['fatigue_scores'] else 0
-        avg_quality = np.mean(list(self.analysis_buffers['quality_scores'])) if self.analysis_buffers['quality_scores'] else 0
+        avg_blinks = np.mean(list(self.analysis_buffers['blink_events'])) if self.analysis_buffers['blink_events'] else 0
+        avg_saccades = np.mean(list(self.analysis_buffers['saccade_events'])) if self.analysis_buffers['saccade_events'] else 0
         
         summary = {
             'session_id': self.session_id,
@@ -272,13 +252,13 @@ class ResearchDataLogger:
             'total_annotations': len(self.annotations),
             'total_events': len(self.session_events),
             'statistics': self.statistics.copy(),
-            'quality_metrics': {
-                'average_quality': avg_quality,
-                'quality_trend': np.mean(list(self.analysis_buffers['quality_scores'][-50:])) if len(self.analysis_buffers['quality_scores']) >= 50 else avg_quality
+            'blink_analysis': {
+                'average_blink_rate': avg_blinks,
+                'blink_trend': np.mean(list(self.analysis_buffers['blink_events'][-50:])) if len(self.analysis_buffers['blink_events']) >= 50 else avg_blinks
             },
-            'fatigue_analysis': {
-                'average_fatigue': avg_fatigue,
-                'fatigue_trend': np.mean(list(self.analysis_buffers['fatigue_scores'][-50:])) if len(self.analysis_buffers['fatigue_scores']) >= 50 else avg_fatigue
+            'saccade_analysis': {
+                'average_saccade_rate': avg_saccades,
+                'saccade_trend': np.mean(list(self.analysis_buffers['saccade_events'][-50:])) if len(self.analysis_buffers['saccade_events']) >= 50 else avg_saccades
             }
         }
         
@@ -511,7 +491,8 @@ class ResearchDataLogger:
         print(f"📊 Research session ended: {self.session_id}")
         print(f"   Duration: {self.statistics['session_duration']:.1f} seconds")
         print(f"   Total frames: {self.statistics['total_frames']}")
-        print(f"   Average quality: {self.statistics['average_quality']:.3f}")
+        print(f"   Average blink rate: {self.statistics['total_blinks']:.3f}")
+        print(f"   Average saccade rate: {self.statistics['total_saccades']:.3f}")
     
     def get_available_exports(self):
         """Get list of available export formats"""

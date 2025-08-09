@@ -119,15 +119,18 @@ class AdvancedEyeTracker:
         self.processing_params = {
             'pupil_detection_confidence': 0.8,
             'gaze_estimation_confidence': 0.7,
-            'fatigue_detection_sensitivity': 0.6,
-            'cognitive_load_sensitivity': 0.5,
             'quality_threshold': 0.7
         }
         
         # Real-time analysis threads
         self.analysis_thread = None
         self.data_queue = queue.Queue(maxsize=100)
-        
+        self.blink_times = deque(maxlen=100)
+        self.is_blinking = False
+        self.blink_start_time = None
+        self.eye_openness_threshold = 0.2  # You may want to tune this
+        self.baseline_openness = None
+    
     def _initialize_mediapipe(self):
         """Initialize MediaPipe with advanced research settings"""
         model_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 'face_landmarker.task')
@@ -294,53 +297,10 @@ class AdvancedEyeTracker:
                 print(f"Analysis worker error: {e}")
     
     def _advanced_analysis(self, data):
-        """Perform advanced real-time analysis"""
-        # Advanced fatigue detection
-        self._analyze_fatigue_advanced(data)
-        
-        # Quality assessment
+        # Only keep quality assessment and research data logging
         self._assess_quality_advanced(data)
-        
-        # Research data logging
         if self.research_mode:
             self._log_research_data(data)
-    
-    def _analyze_fatigue_advanced(self, data):
-        """Advanced fatigue analysis using multiple indicators"""
-        # Blink pattern analysis
-        if 'blink_duration' in data:
-            self.fatigue_indicators['blink_pattern'].append(data['blink_duration'])
-        
-        # Pupil diameter analysis
-        if 'pupil_diameter' in data:
-            self.fatigue_indicators['pupil_diameter'].append(data['pupil_diameter'])
-        
-        # Fixation duration analysis
-        if 'fixation_duration' in data:
-            self.fatigue_indicators['fixation_duration'].append(data['fixation_duration'])
-        
-        # Calculate advanced fatigue score
-        fatigue_score = self._calculate_advanced_fatigue_score()
-        data['advanced_fatigue_score'] = fatigue_score
-    
-    def _calculate_advanced_fatigue_score(self):
-        """Calculate advanced fatigue score using multiple indicators"""
-        if len(self.fatigue_indicators['blink_pattern']) < 10:
-            return 0.0
-        
-        # Normalize and combine indicators
-        blink_score = self._normalize_blink_pattern()
-        pupil_score = self._normalize_pupil_diameter()
-        fixation_score = self._normalize_fixation_duration()
-        
-        # Weighted combination
-        fatigue_score = (
-            blink_score * 0.4 +
-            pupil_score * 0.3 +
-            fixation_score * 0.3
-        )
-        
-        return min(1.0, max(0.0, fatigue_score))
     
     def _assess_quality_advanced(self, data):
         """Advanced quality assessment"""
@@ -367,20 +327,16 @@ class AdvancedEyeTracker:
             data['advanced_quality_score'] = 0.0
     
     def _log_research_data(self, data):
-        """Log research data for analysis"""
         timestamp = time.time()
-        
         research_entry = {
             'timestamp': timestamp,
             'pupil_position': data.get('pupil_position', None),
             'gaze_point': data.get('gaze_point', None),
-            'fatigue_score': data.get('advanced_fatigue_score', 0.0),
-            'cognitive_load': data.get('cognitive_load_score', 0.0),
             'quality_score': data.get('advanced_quality_score', 0.0),
             'blink_rate': data.get('blink_rate', 0.0),
-            'saccade_rate': data.get('saccade_rate', 0.0)
+            'saccade_rate': data.get('saccade_rate', 0.0),
+            'fixation_duration': data.get('fixation_duration', 0.0)
         }
-        
         self.research_data['events'].append(research_entry)
     
     def process_frame(self, frame):
@@ -432,53 +388,44 @@ class AdvancedEyeTracker:
             return frame
     
     def _extract_advanced_data(self, face_landmarks, frame):
-        """Extract advanced tracking data"""
         data = {}
-        
-        # High-precision pupil tracking
         left_pupil = self._extract_pupil_center(face_landmarks, 'left')
         right_pupil = self._extract_pupil_center(face_landmarks, 'right')
-        
         if left_pupil is not None and right_pupil is not None:
             avg_pupil = (left_pupil + right_pupil) / 2
             self.pupil_tracking_history.append(avg_pupil)
             data['pupil_position'] = avg_pupil.tolist()
-            
-            # Calculate pupil diameter
             data['pupil_diameter'] = self._calculate_pupil_diameter(left_pupil, right_pupil)
-        
-        # Gaze estimation
         if self.calibration_complete:
             gaze_point = self._estimate_gaze_point(avg_pupil)
             data['gaze_point'] = gaze_point.tolist()
             self.gaze_history.append(gaze_point)
-        
-        # Advanced eye movement analysis
         data.update(self._analyze_eye_movements())
-        
-        # Head pose estimation
         data.update(self._estimate_head_pose(face_landmarks, frame.shape))
-        
-        # Quality metrics
         data['face_confidence'] = self.result.face_landmarks[0].confidence if hasattr(self.result.face_landmarks[0], 'confidence') else 0.8
-        
-        # Add missing fields that research UI expects
         data['gaze_stability'] = self._calculate_gaze_stability()
-        data['cognitive_load_score'] = self._calculate_cognitive_load_score()
-        data['attention_span'] = self._calculate_attention_span(data)
-        data['processing_speed'] = self._calculate_processing_speed(data)
-        data['mental_effort'] = self._calculate_mental_effort(data)
-
-        # Eye openness (for charts)
-        data['left_eye_openness'] = self._calculate_eye_openness(
-            face_landmarks, self.landmark_indices['left_eye'], self.LEFT_EYE_VERTICAL_PAIRS)
-        data['right_eye_openness'] = self._calculate_eye_openness(
-            face_landmarks, self.landmark_indices['right_eye'], self.RIGHT_EYE_VERTICAL_PAIRS)
-
-        # Event rates for charts
+        # --- Blink detection logic ---
+        left_eye_openness = self._calculate_eye_openness(face_landmarks, self.landmark_indices['left_eye'], self.LEFT_EYE_VERTICAL_PAIRS)
+        right_eye_openness = self._calculate_eye_openness(face_landmarks, self.landmark_indices['right_eye'], self.RIGHT_EYE_VERTICAL_PAIRS)
+        avg_openness = (left_eye_openness + right_eye_openness) / 2
+        current_time = time.time()
+        if self.baseline_openness is None:
+            self.baseline_openness = avg_openness
+        # Adaptive threshold
+        self.eye_openness_threshold = self.baseline_openness * 0.7
+        if avg_openness < self.eye_openness_threshold and not self.is_blinking:
+            self.is_blinking = True
+            self.blink_start_time = current_time
+        elif avg_openness >= self.eye_openness_threshold and self.is_blinking:
+            self.is_blinking = False
+            blink_duration = current_time - self.blink_start_time if self.blink_start_time else 0
+            if 0.05 < blink_duration < 0.5:  # Only count valid blinks
+                self.blink_times.append(current_time)
+        data['left_eye_openness'] = left_eye_openness
+        data['right_eye_openness'] = right_eye_openness
         data['blink_rate'] = self._calculate_blink_rate()
         data['saccade_rate'] = self._calculate_saccade_rate()
-        
+        data['fixation_duration'] = self._calculate_fixation_duration([])  # Use actual velocities if available
         return data
     
     def _extract_pupil_center(self, face_landmarks, eye_side):
@@ -834,41 +781,20 @@ class AdvancedEyeTracker:
         return stability
     
     def _calculate_cognitive_load_score(self):
-        """Calculate cognitive load score based on multiple indicators"""
-        factors = []
-        
-        # Pupil diameter (larger pupils indicate higher cognitive load)
-        if len(self.pupil_tracking_history) > 0:
-            recent_pupils = list(self.pupil_tracking_history)[-10:]
-            avg_pupil_size = np.mean([np.linalg.norm(p) for p in recent_pupils])
-            pupil_factor = min(1.0, avg_pupil_size * 2)
-            factors.append(pupil_factor)
-        
-        # Eye movement frequency (more movements can indicate higher load)
-        if len(self.eye_movement_history) > 0:
-            recent_movements = list(self.eye_movement_history)[-10:]
-            movement_factor = min(1.0, np.mean(recent_movements) * 5)
-            factors.append(movement_factor)
-        
-        # Fatigue score (higher fatigue can indicate higher load)
-        fatigue_score = self._calculate_advanced_fatigue_score()
-        factors.append(fatigue_score)
-        
-        if factors:
-            cognitive_load = np.mean(factors)
-        else:
-            cognitive_load = 0.0
-        
-        return cognitive_load
+        # Cognitive load calculation removed
+        return 0.0
     
     def _calculate_blink_rate(self):
-        """Calculate blink rate per minute"""
-        # This would be implemented with actual blink detection
-        # For now, return a simulated value based on fatigue
-        fatigue_score = self._calculate_advanced_fatigue_score()
-        base_rate = 15  # Normal blink rate per minute
-        fatigue_multiplier = 1.0 + fatigue_score * 0.5
-        return base_rate * fatigue_multiplier
+        # Calculate blink rate per minute using blink_times deque
+        current_time = time.time()
+        # Remove blinks older than 60 seconds
+        while self.blink_times and current_time - self.blink_times[0] > 60:
+            self.blink_times.popleft()
+        if len(self.blink_times) > 1:
+            time_window = self.blink_times[-1] - self.blink_times[0]
+            if time_window > 0:
+                return (len(self.blink_times) / time_window) * 60
+        return 0.0
     
     def _calculate_saccade_rate(self):
         """Calculate saccade rate per minute"""

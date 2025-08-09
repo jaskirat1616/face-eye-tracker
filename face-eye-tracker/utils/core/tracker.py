@@ -131,48 +131,31 @@ class FaceEyeTracker:
         self.calibration_complete = False
         self.eye_openness_buffer = deque(maxlen=10)
         
-        # FATIGUE DETECTION VARIABLES
-        # Blink rate fatigue detection
-        self.blink_rate_history = deque(maxlen=30)
-        self.baseline_blink_rate = None
-        self.fatigue_blink_rate_score = 0.0
-        
-        # Blink duration fatigue detection
-        self.long_blink_threshold = 0.3
-        self.long_blink_count = 0
-        self.fatigue_blink_duration_score = 0.0
-        
-        # Eye openness fatigue detection
-        self.eye_openness_history = deque(maxlen=100)
-        self.fatigue_eye_openness_score = 0.0
-        self.half_eye_threshold = 0.6
-        
-        # Yawn detection
-        self.mouth_landmarks = [61, 84, 17, 314, 405, 320, 307, 375, 321, 308, 324, 318]
-        self.yawn_counter = 0
-        self.yawn_times = deque(maxlen=20)
-        self.last_yawn_time = 0
-        self.yawn_cooldown = 5.0
-        self.fatigue_yawn_score = 0.0
-        
-        # Gaze direction drift detection
-        self.gaze_positions = deque(maxlen=50)
-        self.gaze_center = None
-        self.fatigue_gaze_drift_score = 0.0
-        
-        # Head pose slouch detection
-        self.head_poses = deque(maxlen=30)
-        self.baseline_head_pose = None
-        self.fatigue_head_slouch_score = 0.0
-        
-        # Overall fatigue score
-        self.overall_fatigue_score = 0.0
-        self.fatigue_level = "Normal"
-        
-        # Current data for UI
-        self.current_data = {}
-        
-        # Current data for UI
+        # Remove fatigue detection variables and scores
+        # Only keep blink, saccade, and fixation related variables
+        self.blink_counter = 0
+        self.blink_times = deque(maxlen=100)
+        self.blink_durations = deque(maxlen=10)
+        self.last_blink_time = time.time()
+        self.blink_start_time = None
+        self.is_blinking = False
+        self.eye_openness_threshold = 0.25
+        self.baseline_openness = None
+        self.openness_history = deque(maxlen=50)
+        self.saccade_counter = 0
+        self.saccade_times = deque(maxlen=100)
+        self.last_pupil_pos = None
+        self.last_frame_time = time.time()
+        self.saccade_threshold = 0.02
+        self.saccade_cooldown = 0.3
+        self.last_saccade_time = 0
+        self.saccade_amplitudes = deque(maxlen=10)
+        self.saccade_velocities = deque(maxlen=10)
+        self.microsaccade_counter = 0
+        self.microsaccade_times = deque(maxlen=100)
+        self.last_pupil_pos_local = None
+        self.microsaccade_threshold = 0.2
+        self.last_microsaccade_time = 0
         self.current_data = {}
 
     def result_callback(self, result: vision.FaceLandmarkerResult, output_image, timestamp_ms: int):
@@ -416,261 +399,6 @@ class FaceEyeTracker:
                 return (len(self.microsaccade_times) / time_window) * 60
         return 0
 
-    # FATIGUE DETECTION METHODS
-    def analyze_blink_rate_fatigue(self, current_blink_rate):
-        """Analyze blink rate for fatigue indicators - slower or more irregular blinking"""
-        self.blink_rate_history.append(current_blink_rate)
-        
-        if len(self.blink_rate_history) < 10:
-            return 0.0
-        
-        # Calculate baseline blink rate (first 10 measurements)
-        if self.baseline_blink_rate is None:
-            self.baseline_blink_rate = np.mean(list(self.blink_rate_history)[:10])
-            return 0.0
-        
-        # Calculate recent blink rate (last 10 measurements)
-        recent_blink_rate = np.mean(list(self.blink_rate_history)[-10:])
-        
-        # Fatigue indicators:
-        # 1. Slower blinking (lower rate than baseline)
-        # 2. More irregular blinking (higher variance)
-        rate_variance = np.var(list(self.blink_rate_history)[-10:])
-        
-        # Score based on rate decrease and irregularity
-        if self.baseline_blink_rate > 0:
-            rate_decrease = max(0, (self.baseline_blink_rate - recent_blink_rate) / self.baseline_blink_rate)
-        else:
-            rate_decrease = 0.0
-        irregularity_score = min(1.0, rate_variance / 10.0)  # Normalize variance
-        
-        fatigue_score = (rate_decrease * 0.7) + (irregularity_score * 0.3)
-        self.fatigue_blink_rate_score = min(1.0, fatigue_score)
-        
-        return self.fatigue_blink_rate_score
-
-    def analyze_blink_duration_fatigue(self, blink_duration):
-        """Analyze blink duration for fatigue - longer blinks indicate microsleeps"""
-        if blink_duration > self.long_blink_threshold:
-            self.long_blink_count += 1
-        
-        # Calculate percentage of long blinks in recent history
-        if len(self.blink_durations) > 0:
-            long_blink_percentage = self.long_blink_count / len(self.blink_durations)
-            self.fatigue_blink_duration_score = min(1.0, long_blink_percentage * 2.0)  # Scale up
-        else:
-            self.fatigue_blink_duration_score = 0.0
-        
-        return self.fatigue_blink_duration_score
-
-    def analyze_eye_openness_fatigue(self, left_openness, right_openness):
-        """Analyze eye openness for fatigue - eyes slowly closing or staying half-open"""
-        avg_openness = (left_openness + right_openness) / 2
-        self.eye_openness_history.append(avg_openness)
-        
-        if len(self.eye_openness_history) < 20 or self.baseline_openness is None:
-            return 0.0
-        
-        # Calculate recent average openness
-        recent_openness = np.mean(list(self.eye_openness_history)[-20:])
-        
-        # Fatigue indicators:
-        # 1. Eyes staying below 60% of baseline openness
-        # 2. Gradual decrease in openness over time
-        openness_ratio = recent_openness / self.baseline_openness
-        
-        if openness_ratio < self.half_eye_threshold:
-            # Calculate how much below threshold
-            severity = (self.half_eye_threshold - openness_ratio) / self.half_eye_threshold
-            self.fatigue_eye_openness_score = min(1.0, severity * 2.0)
-        else:
-            self.fatigue_eye_openness_score = max(0.0, self.fatigue_eye_openness_score - 0.05)
-        
-        return self.fatigue_eye_openness_score
-
-    def detect_yawn(self, face_landmarks):
-        """Detect yawning as a sign of tiredness"""
-        if len(face_landmarks) < 468:
-            return False, 0.0
-        
-        # Calculate mouth openness using mouth landmarks
-        mouth_points = np.array([[face_landmarks[i].x, face_landmarks[i].y] for i in self.mouth_landmarks])
-        
-        # Calculate mouth height and width
-        mouth_height = np.max(mouth_points[:, 1]) - np.min(mouth_points[:, 1])
-        mouth_width = np.max(mouth_points[:, 0]) - np.min(mouth_points[:, 0])
-        
-        # Yawn threshold: mouth height > 60% of mouth width
-        yawn_ratio = mouth_height / mouth_width if mouth_width > 0 else 0
-        
-        current_time = time.time()
-        yawn_detected = False
-        
-        if yawn_ratio > 0.6 and current_time - self.last_yawn_time > self.yawn_cooldown:
-            yawn_detected = True
-            self.yawn_counter += 1
-            self.yawn_times.append(current_time)
-            self.last_yawn_time = current_time
-        
-        # Calculate yawn-based fatigue score
-        if len(self.yawn_times) > 0:
-            # More yawns in recent time = higher fatigue
-            recent_yawns = sum(1 for t in self.yawn_times if current_time - t < 300)  # Last 5 minutes
-            self.fatigue_yawn_score = min(1.0, recent_yawns / 3.0)  # 3+ yawns = max fatigue
-        else:
-            self.fatigue_yawn_score = max(0.0, self.fatigue_yawn_score - 0.02)
-        
-        return yawn_detected, self.fatigue_yawn_score
-
-    def analyze_gaze_drift(self, face_landmarks):
-        """Analyze gaze direction drift - less focused gaze, more frequent wandering"""
-        if len(face_landmarks) < 478:
-            return 0.0
-        
-        # Calculate current gaze position (average of both pupils)
-        left_pupil = np.mean([[lm.x, lm.y] for lm in [face_landmarks[i] for i in self.LEFT_IRIS]], axis=0)
-        right_pupil = np.mean([[lm.x, lm.y] for lm in [face_landmarks[i] for i in self.RIGHT_IRIS]], axis=0)
-        current_gaze = (left_pupil + right_pupil) / 2
-        
-        self.gaze_positions.append(current_gaze)
-        
-        if len(self.gaze_positions) < 10:
-            return 0.0
-        
-        # Calculate gaze center (baseline)
-        if self.gaze_center is None:
-            self.gaze_center = np.mean(list(self.gaze_positions)[:10], axis=0)
-            return 0.0
-        
-        # Calculate recent gaze positions
-        recent_gaze_positions = list(self.gaze_positions)[-10:]
-        
-        # Fatigue indicators:
-        # 1. Distance from center (wandering gaze)
-        # 2. Variance in gaze positions (unstable focus)
-        distances_from_center = [np.linalg.norm(pos - self.gaze_center) for pos in recent_gaze_positions]
-        avg_distance = np.mean(distances_from_center)
-        gaze_variance = np.var(recent_gaze_positions, axis=0)
-        total_variance = np.sum(gaze_variance)
-        
-        # Score based on distance and variance
-        distance_score = min(1.0, avg_distance / 0.1)  # Normalize distance
-        variance_score = min(1.0, total_variance / 0.01)  # Normalize variance
-        
-        self.fatigue_gaze_drift_score = (distance_score * 0.6) + (variance_score * 0.4)
-        
-        return self.fatigue_gaze_drift_score
-
-    def analyze_head_pose_slouch(self, face_landmarks):
-        """Analyze head pose for slouching - neck/head tilt downwards = low alertness"""
-        if len(face_landmarks) < 468:
-            return 0.0
-        
-        # Correct MediaPipe 468 landmark indices for head pose analysis
-        # Nose tip (landmark 4)
-        nose_tip = np.array([face_landmarks[4].x, face_landmarks[4].y])
-        
-        # Left ear (landmark 234 - left ear tragion)
-        left_ear = np.array([face_landmarks[234].x, face_landmarks[234].y])
-        
-        # Right ear (landmark 454 - right ear tragion)
-        right_ear = np.array([face_landmarks[454].x, face_landmarks[454].y])
-        
-        # Additional landmarks for better head pose estimation
-        # Left temple (landmark 447)
-        left_temple = np.array([face_landmarks[447].x, face_landmarks[447].y])
-        
-        # Right temple (landmark 227)
-        right_temple = np.array([face_landmarks[227].x, face_landmarks[227].y])
-        
-        # Chin (landmark 152)
-        chin = np.array([face_landmarks[152].x, face_landmarks[152].y])
-        
-        # Calculate head center using ears
-        head_center = (left_ear + right_ear) / 2
-        
-        # Calculate head tilt (rotation around Z-axis)
-        head_tilt = np.arctan2(right_ear[1] - left_ear[1], right_ear[0] - left_ear[0])
-        
-        # Calculate forward tilt (head nodding down/up)
-        # Use nose position relative to head center
-        forward_tilt = nose_tip[1] - head_center[1]  # Positive = head tilted down
-        
-        # Calculate head roll (side-to-side tilt)
-        # Use temples for more stable roll detection
-        head_roll = np.arctan2(right_temple[1] - left_temple[1], right_temple[0] - left_temple[0])
-        
-        # Calculate head position relative to chin (slouching indicator)
-        # When slouching, the head moves forward relative to the chin
-        head_forward_position = nose_tip[0] - chin[0]  # Positive = head forward
-        
-        # Combine all pose parameters
-        current_head_pose = np.array([head_tilt, forward_tilt, head_roll, head_forward_position])
-        self.head_poses.append(current_head_pose)
-        
-        if len(self.head_poses) < 10:
-            return 0.0
-        
-        # Calculate baseline head pose
-        if self.baseline_head_pose is None:
-            self.baseline_head_pose = np.mean(list(self.head_poses)[:10], axis=0)
-            return 0.0
-        
-        # Calculate recent head pose
-        recent_head_pose = np.mean(list(self.head_poses)[-10:], axis=0)
-        
-        # Fatigue indicators:
-        # 1. Head tilted down (forward tilt increased)
-        # 2. Head moved forward (slouching)
-        # 3. Unstable head position (variance in pose)
-        forward_tilt_change = recent_head_pose[1] - self.baseline_head_pose[1]
-        head_forward_change = recent_head_pose[3] - self.baseline_head_pose[3]
-        head_variance = np.var(list(self.head_poses)[-10:], axis=0)
-        total_head_variance = np.sum(head_variance)
-        
-        # Score based on forward tilt, slouching, and instability
-        tilt_score = min(1.0, max(0, forward_tilt_change) / 0.05)  # Normalize tilt change
-        slouch_score = min(1.0, max(0, head_forward_change) / 0.05)  # Normalize forward movement
-        instability_score = min(1.0, total_head_variance / 0.005)  # Normalize variance
-        
-        # Combine scores with weights
-        self.fatigue_head_slouch_score = (tilt_score * 0.5) + (slouch_score * 0.3) + (instability_score * 0.2)
-        
-        return self.fatigue_head_slouch_score
-
-    def calculate_overall_fatigue_score(self):
-        """Calculate overall fatigue score based on all indicators"""
-        # Weighted combination of all fatigue indicators
-        weights = {
-            'blink_rate': 0.25,
-            'blink_duration': 0.20,
-            'eye_openness': 0.20,
-            'yawn': 0.15,
-            'gaze_drift': 0.10,
-            'head_slouch': 0.10
-        }
-        
-        self.overall_fatigue_score = (
-            self.fatigue_blink_rate_score * weights['blink_rate'] +
-            self.fatigue_blink_duration_score * weights['blink_duration'] +
-            self.fatigue_eye_openness_score * weights['eye_openness'] +
-            self.fatigue_yawn_score * weights['yawn'] +
-            self.fatigue_gaze_drift_score * weights['gaze_drift'] +
-            self.fatigue_head_slouch_score * weights['head_slouch']
-        )
-        
-        # Determine fatigue level
-        if self.overall_fatigue_score < 0.3:
-            self.fatigue_level = "Normal"
-        elif self.overall_fatigue_score < 0.6:
-            self.fatigue_level = "Mild Fatigue"
-        elif self.overall_fatigue_score < 0.8:
-            self.fatigue_level = "Moderate Fatigue"
-        else:
-            self.fatigue_level = "Severe Fatigue"
-        
-        return self.overall_fatigue_score, self.fatigue_level
-
     def assess_quality(self, face_landmarks):
         """Assess detection quality and stability"""
         if self.last_landmarks is None:
@@ -756,24 +484,7 @@ class FaceEyeTracker:
                     'right_eye_openness': 0.0,
                     'blink_rate': 0.0,
                     'saccade_rate': 0.0,
-                    'microsaccade_rate': 0.0,
-                    'overall_fatigue_score': 0.0,
-                    'fatigue_level': 'No Face',
-                    'quality_score': 0.0,
-                    'calibration_complete': False,
-                    'fatigue_blink_rate_score': 0.0,
-                    'fatigue_blink_duration_score': 0.0,
-                    'fatigue_eye_openness_score': 0.0,
-                    'fatigue_yawn_score': 0.0,
-                    'fatigue_gaze_drift_score': 0.0,
-                    'fatigue_head_slouch_score': 0.0,
-                    'blink_duration': 0.0,
-                    'saccade_amplitude': 0.0,
-                    'saccade_velocity': 0.0,
-                    'yawn_detected': False,
-                    'blink_counter': 0,
-                    'saccade_counter': 0,
-                    'blink_durations': []
+                    'microsaccade_rate': 0.0
                 }
                 return frame
             
@@ -801,17 +512,6 @@ class FaceEyeTracker:
             microsaccade_detected = self.detect_microsaccade(face_landmarks)
             microsaccade_rate = self.calculate_microsaccade_rate()
             
-            # Analyze fatigue indicators
-            fatigue_blink_rate_score = self.analyze_blink_rate_fatigue(blink_rate)
-            fatigue_blink_duration_score = self.analyze_blink_duration_fatigue(blink_duration)
-            fatigue_eye_openness_score = self.analyze_eye_openness_fatigue(left_eye_openness, right_eye_openness)
-            yawn_detected, fatigue_yawn_score = self.detect_yawn(face_landmarks)
-            fatigue_gaze_drift_score = self.analyze_gaze_drift(face_landmarks)
-            fatigue_head_slouch_score = self.analyze_head_pose_slouch(face_landmarks)
-            
-            # Calculate overall fatigue score
-            overall_fatigue_score, fatigue_level = self.calculate_overall_fatigue_score()
-            
             # Update current data for UI
             self.current_data = {
                 'left_eye_openness': left_eye_openness,
@@ -819,20 +519,9 @@ class FaceEyeTracker:
                 'blink_rate': blink_rate,
                 'saccade_rate': saccade_rate,
                 'microsaccade_rate': microsaccade_rate,
-                'overall_fatigue_score': overall_fatigue_score,
-                'fatigue_level': fatigue_level,
-                'quality_score': quality,
-                'calibration_complete': self.calibration_complete,
-                'fatigue_blink_rate_score': fatigue_blink_rate_score,
-                'fatigue_blink_duration_score': fatigue_blink_duration_score,
-                'fatigue_eye_openness_score': fatigue_eye_openness_score,
-                'fatigue_yawn_score': fatigue_yawn_score,
-                'fatigue_gaze_drift_score': fatigue_gaze_drift_score,
-                'fatigue_head_slouch_score': fatigue_head_slouch_score,
                 'blink_duration': blink_duration,
                 'saccade_amplitude': saccade_amplitude,
                 'saccade_velocity': saccade_velocity,
-                'yawn_detected': yawn_detected,
                 'blink_counter': self.blink_counter,
                 'saccade_counter': self.saccade_counter,
                 'blink_durations': list(self.blink_durations)
