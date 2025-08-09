@@ -495,20 +495,20 @@ class ResearchEyeTrackerUI:
         tk.Label(instructions_frame, text="", bg='#f8f9fa').pack(pady=12)
         
     def create_research_metrics(self):
-        """Create comprehensive research metrics display"""
-        metrics_frame = tk.Frame(self.root, bg='#f8f9fa', relief='flat', bd=1)
+        """Create comprehensive research metrics display with a terminal look"""
+        metrics_frame = tk.Frame(self.root, bg='white', relief='flat', bd=2)
         metrics_frame.grid(row=0, column=2, sticky="nsew", padx=5, pady=5)
         
         # Title
-        metrics_title = tk.Label(metrics_frame, text="Research Metrics", 
-                                font=("SF Pro Display", 16, "bold"), 
-                                bg='#f8f9fa', fg='#212529')
-        metrics_title.pack(pady=12)
+        metrics_title = tk.Label(metrics_frame, text="-- RESEARCH METRICS --", 
+                                 font=("Courier New", 16, "bold"), 
+                                 bg='white', fg='black')
+        metrics_title.pack(pady=(10, 5))
         
         # Create scrollable metrics container
-        canvas = tk.Canvas(metrics_frame, bg='#f8f9fa', highlightthickness=0)
+        canvas = tk.Canvas(metrics_frame, bg='white', highlightthickness=0)
         scrollbar = ttk.Scrollbar(metrics_frame, orient="vertical", command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas, bg='#f8f9fa')
+        scrollable_frame = tk.Frame(canvas, bg='white')
         
         scrollable_frame.bind(
             "<Configure>",
@@ -518,49 +518,51 @@ class ResearchEyeTrackerUI:
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
         
-        canvas.pack(side="left", fill="both", expand=True, padx=15)
+        canvas.pack(side="left", fill="both", expand=True, padx=(10, 0))
         scrollbar.pack(side="right", fill="y")
-        
+
+        scrollable_frame.grid_columnconfigure(0, weight=2)
+        scrollable_frame.grid_columnconfigure(1, weight=1)
+
         # Research metrics
         research_metrics = [
-            ("Advanced Fatigue Score", "advanced_fatigue", "#dc3545"),
-            ("Advanced Quality Score", "advanced_quality", "#6f42c1"),
-            ("Cognitive Load Score", "cognitive_load", "#fd7e14"),
-            ("Pupil Diameter (px)", "pupil_diameter", "#20c997"),
+            ("Adv. Fatigue", "advanced_fatigue", "#dc3545"),
+            ("Adv. Quality", "advanced_quality", "#6f42c1"),
+            ("Cognitive Load", "cognitive_load", "#fd7e14"),
+            ("Pupil Diameter", "pupil_diameter", "#20c997"),
             ("Gaze Stability", "gaze_stability", "#17a2b8"),
             ("Eye Velocity", "eye_velocity", "#ffc107"),
-            ("Fixation Duration", "fixation_duration", "#e83e8c"),
+            ("Fixation", "fixation_duration", "#e83e8c"),
             ("Attention Span", "attention_span", "#6f42c1"),
-            ("Processing Speed", "processing_speed", "#28a745"),
+            ("Processing Spd", "processing_speed", "#28a745"),
             ("Mental Effort", "mental_effort", "#dc3545"),
-            ("Blink Rate (/min)", "blink_rate", "#17a2b8"),
-            ("Saccade Rate (/min)", "saccade_rate", "#ffc107"),
-            ("Head Tilt (rad)", "head_tilt", "#6610f2"),
-            ("Head Yaw (rad)", "head_yaw", "#6610f2"),
-            ("Head Roll (rad)", "head_roll", "#6610f2"),
-            ("Calibration Quality", "calibration_quality", "#28a745"),
-            ("Session Duration", "session_duration", "#6c757d"),
+            ("Blink Rate", "blink_rate", "#17a2b8"),
+            ("Saccade Rate", "saccade_rate", "#ffc107"),
+            ("Head Tilt", "head_tilt", "#6610f2"),
+            ("Head Yaw", "head_yaw", "#6610f2"),
+            ("Head Roll", "head_roll", "#6610f2"),
+            ("Calib. Quality", "calibration_quality", "#28a745"),
+            ("Session Time", "session_duration", "#6c757d"),
             ("Total Events", "total_events", "#495057"),
-            ("Average Quality", "avg_quality", "#6c757d"),
+            ("Avg. Quality", "avg_quality", "#6c757d"),
             ("Research Mode", "research_mode", "#28a745"),
-            ("Data Collection", "data_collection", "#17a2b8"),
+            ("Data Logging", "data_collection", "#17a2b8"),
             ("Export Status", "export_status", "#6c757d")
         ]
-        
+
         self.research_metrics = {}
-        for label_text, key, color in research_metrics:
-            metric_row = tk.Frame(scrollable_frame, bg='#ffffff', relief='flat', bd=1)
-            metric_row.pack(fill='x', pady=2, padx=5)
+        for i, (label_text, key, _) in enumerate(research_metrics):
             
-            title_label = tk.Label(metric_row, text=label_text, 
-                                 font=("SF Pro Text", 10, "bold"), 
-                                 bg='#ffffff', fg='#6c757d', width=20, anchor='w')
-            title_label.pack(side='left', padx=12, pady=8)
+            full_label_text = f"{label_text.ljust(15)}:"
+            title_label = tk.Label(scrollable_frame, text=full_label_text, 
+                                 font=("Courier New", 12), 
+                                 bg='white', fg='black', anchor='w')
+            title_label.grid(row=i, column=0, sticky='w', padx=(5,0), pady=1)
             
-            value_label = tk.Label(metric_row, text="--", 
-                                 font=("SF Pro Display", 11, "bold"), 
-                                 bg='#ffffff', fg=color, width=15, anchor='w')
-            value_label.pack(side='right', padx=12, pady=8)
+            value_label = tk.Label(scrollable_frame, text="--", 
+                                 font=("Courier New", 12, "bold"), 
+                                 bg='white', fg='black', width=12, anchor='w')
+            value_label.grid(row=i, column=1, sticky='ew', padx=(0,5), pady=1)
             
             self.research_metrics[key] = value_label
     
