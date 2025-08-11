@@ -130,6 +130,13 @@ class AdvancedEyeTracker:
         self.blink_start_time = None
         self.eye_openness_threshold = 0.2  # You may want to tune this
         self.baseline_openness = None
+        
+        # Head pose smoothing
+        self.head_pose_history = {
+            'tilt': deque(maxlen=5),
+            'yaw': deque(maxlen=5),
+            'roll': deque(maxlen=5)
+        }
     
     def _initialize_mediapipe(self):
         """Initialize MediaPipe with advanced research settings"""
@@ -504,6 +511,16 @@ class AdvancedEyeTracker:
         data = {}
         height, width, _ = frame_shape
         
+        # A more standard 3D face model
+        face_3d_points = np.array([
+            [0.0, 0.0, 0.0],            # Nose tip
+            [0.0, -63.6, -20.5],        # Chin
+            [-45.45, 34.2, -30.7],      # Left eye corner
+            [45.45, 34.2, -30.7],       # Right eye corner
+            [-30.3, -30.3, -25.7],      # Left mouth corner
+            [30.3, -30.3, -25.7]        # Right mouth corner
+        ], dtype=np.float64)
+
         # 2D image points from landmarks
         face_2d_points = np.array([
             (face_landmarks[1].x * width, face_landmarks[1].y * height),   # Nose tip
@@ -514,38 +531,44 @@ class AdvancedEyeTracker:
             (face_landmarks[57].x * width, face_landmarks[57].y * height)   # Right mouth corner
         ], dtype=np.float64)
 
-        # Camera matrix and distortion coefficients
+        # Corrected camera matrix and distortion coefficients
         focal_length = width
-        cam_matrix = np.array([[focal_length, 0, height / 2],
-                               [0, focal_length, width / 2],
+        cam_matrix = np.array([[focal_length, 0, width / 2],
+                               [0, focal_length, height / 2],
                                [0, 0, 1]], dtype=np.float64)
         dist_coeffs = np.zeros((4, 1), dtype=np.float64)
 
         # Solve for rotation and translation vectors
-        success, rvec, tvec = cv2.solvePnP(self.face_3d_model_points, face_2d_points, cam_matrix, dist_coeffs)
+        success, rvec, tvec = cv2.solvePnP(face_3d_points, face_2d_points, cam_matrix, dist_coeffs)
         
         if success:
-            data['rvec'] = rvec.flatten().tolist()
-            data['tvec'] = tvec.flatten().tolist()
-            
             # Decompose rotation matrix to get Euler angles
             rmat, _ = cv2.Rodrigues(rvec)
             sy = np.sqrt(rmat[0, 0] * rmat[0, 0] + rmat[1, 0] * rmat[1, 0])
             singular = sy < 1e-6
             
             if not singular:
-                x = np.arctan2(rmat[2, 1], rmat[2, 2])
-                y = np.arctan2(-rmat[2, 0], sy)
-                z = np.arctan2(rmat[1, 0], rmat[0, 0])
+                x = np.arctan2(rmat[2, 1], rmat[2, 2]) # Pitch
+                y = np.arctan2(-rmat[2, 0], sy)       # Yaw
+                z = np.arctan2(rmat[1, 0], rmat[0, 0]) # Roll
             else:
                 x = np.arctan2(-rmat[1, 2], rmat[1, 1])
                 y = np.arctan2(-rmat[2, 0], sy)
                 z = 0
             
-            # Convert to degrees
-            data['head_roll'] = x * 180.0 / np.pi
-            data['head_yaw'] = y * 180.0 / np.pi
-            data['head_tilt'] = z * 180.0 / np.pi
+            # Append current values to history
+            self.head_pose_history['tilt'].append(x * 180.0 / np.pi)
+            self.head_pose_history['yaw'].append(y * 180.0 / np.pi)
+            self.head_pose_history['roll'].append(z * 180.0 / np.pi)
+            
+            # Calculate smoothed values
+            data['head_tilt'] = np.mean(self.head_pose_history['tilt'])
+            data['head_yaw'] = np.mean(self.head_pose_history['yaw'])
+            data['head_roll'] = np.mean(self.head_pose_history['roll'])
+
+            # Store original rvec and tvec for overlay
+            data['rvec'] = rvec.flatten().tolist()
+            data['tvec'] = tvec.flatten().tolist()
         
         return data
     

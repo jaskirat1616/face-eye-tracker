@@ -702,9 +702,9 @@ class ResearchEyeTrackerUI:
             self.chart_lines['fixation_duration'], = self.ax3.plot([], [], color='#17a2b8', lw=2, alpha=0.9, label='Fixation Duration')
             self.ax3.legend(fontsize=8)
             # Ax4: Head Pose (Yaw, Pitch, Roll)
-            self.chart_lines['head_yaw'], = self.ax4.plot([], [], color='#6f42c1', lw=2, alpha=0.9, label='Yaw')
+            self.chart_lines['head_yaw'], = self.ax4.plot([], [], color='#6f42c1', lw=2, alpha=0.9, label='Roll')
             self.chart_lines['head_tilt'], = self.ax4.plot([], [], color='#e83e8c', lw=2, alpha=0.9, label='Pitch')
-            self.chart_lines['head_roll'], = self.ax4.plot([], [], color='#20c997', lw=2, alpha=0.9, label='Roll')
+            self.chart_lines['head_roll'], = self.ax4.plot([], [], color='#20c997', lw=2, alpha=0.9, label='Yaw')
             self.ax4.legend(fontsize=8)
         except Exception as e:
             print(f"Chart initialization error: {e}")
