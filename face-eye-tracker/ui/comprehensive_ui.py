@@ -990,4 +990,9 @@ class EyeTrackerUI:
     def run(self):
         """Run the UI"""
         self.create_ui()
-        self.root.mainloop() 
+        self.root.mainloop()
+
+
+# Alias for backward compatibility to match expected import name
+class ComprehensiveEyeTrackerUI(EyeTrackerUI):
+    pass 

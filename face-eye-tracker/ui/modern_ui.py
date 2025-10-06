@@ -69,6 +69,8 @@ class EyeTrackerUI:
             'left_eye': [],
             'right_eye': [],
             'blink_rate': [],
+            'saccade_rate': [],
+            'microsaccade_rate': [],
             'fatigue': [],
             'quality': []
         }
@@ -120,7 +122,7 @@ class EyeTrackerUI:
         title_frame.pack(fill='x', pady=(20, 25))
         
         title_label = tk.Label(title_frame, text="Eye Tracking & Cognitive Fatigue Detection", 
-                              font=("SF Pro Display", 16, "bold"), 
+                              font=("Helvetica Neue", 16, "bold"), 
                               bg='#f8f9fa', fg='#212529')
         title_label.pack()
         
@@ -130,7 +132,7 @@ class EyeTrackerUI:
         
         # Modern button styling
         button_style = {
-            'font': ("SF Pro Text", 11, "bold"),
+            'font': ("Helvetica Neue", 11, "bold"),
             'relief': 'flat',
             'padx': 20,
             'pady': 12,
@@ -162,13 +164,13 @@ class EyeTrackerUI:
         status_card.pack(fill='x', pady=5)
         
         self.status_label = tk.Label(status_card, text="Ready", 
-                                    font=("SF Pro Text", 12, "bold"), 
+                                    font=("Helvetica Neue", 12, "bold"), 
                                     bg='#ffffff', fg='#28a745')
         self.status_label.pack(pady=8)
         
         # FPS indicator
         self.fps_label = tk.Label(status_card, text="FPS: 0", 
-                                 font=("SF Pro Text", 10), 
+                                 font=("Helvetica Neue", 10), 
                                  bg='#ffffff', fg='#6c757d')
         self.fps_label.pack(pady=(0, 8))
         
@@ -189,7 +191,7 @@ class EyeTrackerUI:
         
         # Video title
         video_title = tk.Label(video_frame, text="Live Camera Feed", 
-                              font=("SF Pro Display", 16, "bold"), 
+                              font=("Helvetica Neue", 16, "bold"), 
                               bg='#ffffff', fg='#212529')
         video_title.pack(pady=12)
         
@@ -198,7 +200,7 @@ class EyeTrackerUI:
         video_container.pack(fill='both', expand=True, padx=20, pady=(0, 20))
         
         self.video_label = tk.Label(video_container, bg='#000000', text="Camera feed will appear here",
-                                   font=("SF Pro Text", 12), fg='#ffffff')
+                                   font=("Helvetica Neue", 12), fg='#ffffff')
         self.video_label.pack(fill='both', expand=True, padx=10, pady=10)
         
         # Instructions with modern design
@@ -206,7 +208,7 @@ class EyeTrackerUI:
         instructions_frame.pack(fill='x', padx=10, pady=(0, 10))
         
         instructions_title = tk.Label(instructions_frame, text="Instructions", 
-                                     font=("SF Pro Display", 14, "bold"), 
+                                     font=("Helvetica Neue", 14, "bold"), 
                                      bg='#f8f9fa', fg='#212529')
         instructions_title.pack(pady=(12, 8))
         
@@ -218,7 +220,7 @@ class EyeTrackerUI:
         
         for instruction in instructions:
             label = tk.Label(instructions_frame, text=f"• {instruction}", 
-                           font=("SF Pro Text", 11), 
+                           font=("Helvetica Neue", 11), 
                            bg='#f8f9fa', fg='#6c757d')
             label.pack(anchor='w', padx=20, pady=2)
         
@@ -231,7 +233,7 @@ class EyeTrackerUI:
         
         # Title
         metrics_title = tk.Label(metrics_frame, text="Real-time Metrics", 
-                                font=("SF Pro Display", 16, "bold"), 
+                                font=("Helvetica Neue", 16, "bold"), 
                                 bg='#f8f9fa', fg='#212529')
         metrics_title.pack(pady=12)
         
@@ -256,6 +258,7 @@ class EyeTrackerUI:
         detailed_metrics = [
             ("Eye Openness", "eye_openness", "#007bff"),
             ("Blink Rate", "blink_rate", "#28a745"),
+            ("Saccade Rate", "saccade_rate", "#fd7e14"),
             ("Fatigue Score", "fatigue_score", "#dc3545"),
             ("Detection Quality", "quality", "#6f42c1"),
             ("Calibration Status", "calibration", "#6c757d"),
@@ -278,13 +281,13 @@ class EyeTrackerUI:
             
             # Metric title
             title_label = tk.Label(metric_row, text=label_text, 
-                                 font=("SF Pro Text", 10, "bold"), 
+                                 font=("Helvetica Neue", 10, "bold"), 
                                  bg='#ffffff', fg='#6c757d', width=20, anchor='w')
             title_label.pack(side='left', padx=12, pady=8)
             
             # Metric value (updates in place)
             value_label = tk.Label(metric_row, text="--", 
-                                 font=("SF Pro Display", 11, "bold"), 
+                                 font=("Helvetica Neue", 11, "bold"), 
                                  bg='#ffffff', fg=color, width=15, anchor='w')
             value_label.pack(side='right', padx=12, pady=8)
             
@@ -297,7 +300,7 @@ class EyeTrackerUI:
         
         # Charts title
         charts_title = tk.Label(charts_frame, text="Analytics Dashboard", 
-                               font=("SF Pro Display", 18, "bold"), 
+                               font=("Helvetica Neue", 18, "bold"), 
                                bg='#ffffff', fg='#212529')
         charts_title.pack(pady=15)
         
@@ -313,22 +316,12 @@ class EyeTrackerUI:
         self.ax6 = self.fig.add_subplot(2, 3, 6)  # Microsaccade rate
         
         # Configure subplots with modern styling
-        for ax in [self.ax1, self.ax2, self.ax3, self.ax4, self.ax5, self.ax6]:
-            ax.set_facecolor('#f8f9fa')
-            ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
-            ax.tick_params(colors='#6c757d', labelsize=8)
-            ax.spines['top'].set_visible(False)
-            ax.spines['right'].set_visible(False)
-            ax.spines['left'].set_color('#dee2e6')
-            ax.spines['bottom'].set_color('#dee2e6')
-            
-        # Set titles with modern styling
-        titles = ['Eye Openness', 'Blink Rate', 'Additional Metric', 
-                 'Fatigue Score', 'Quality', 'Additional Metric']
         axes = [self.ax1, self.ax2, self.ax3, self.ax4, self.ax5, self.ax6]
+        titles = ['Eye Openness', 'Blink Rate', 'Saccade Rate', 
+                 'Fatigue Score', 'Quality', 'Microsaccade Rate']
         
         for ax, title in zip(axes, titles):
-            ax.set_title(title, color='#212529', fontsize=11, fontweight='bold', pad=8)
+            self.configure_subplot(ax, title)
             
         # Adjust layout
         self.fig.tight_layout(pad=2.0)
@@ -340,6 +333,18 @@ class EyeTrackerUI:
         # Start animation with reduced frequency
         self.start_animation()
     
+
+    
+    def configure_subplot(self, ax, title):
+        ax.set_facecolor('#f8f9fa')
+        ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
+        ax.tick_params(colors='#6c757d', labelsize=8)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_color('#dee2e6')
+        ax.spines['bottom'].set_color('#dee2e6')
+        ax.set_title(title, color='#212529', fontsize=11, fontweight='bold', pad=8)
+
     def start_animation(self):
         """Start the chart animation with optimized frequency"""
         self.ani = animation.FuncAnimation(self.fig, self.update_charts, 
@@ -363,6 +368,8 @@ class EyeTrackerUI:
             self.chart_data['left_eye'].append(float(data.get('left_eye_openness', 0)))
             self.chart_data['right_eye'].append(float(data.get('right_eye_openness', 0)))
             self.chart_data['blink_rate'].append(float(data.get('blink_rate', 0)))
+            self.chart_data['saccade_rate'].append(float(data.get('saccade_rate', 0)))
+            self.chart_data['microsaccade_rate'].append(float(data.get('microsaccade_rate', 0)))
             self.chart_data['fatigue'].append(float(data.get('overall_fatigue_score', 0)))
             self.chart_data['quality'].append(float(data.get('quality_score', 0)))
             
@@ -399,6 +406,8 @@ class EyeTrackerUI:
             self.chart_lines['left_eye'].set_data(times, self.chart_data['left_eye'])
             self.chart_lines['right_eye'].set_data(times, self.chart_data['right_eye'])
             self.chart_lines['blink_rate'].set_data(times, self.chart_data['blink_rate'])
+            self.chart_lines['saccade_rate'].set_data(times, self.chart_data['saccade_rate'])
+            self.chart_lines['microsaccade_rate'].set_data(times, self.chart_data['microsaccade_rate'])
             self.chart_lines['fatigue'].set_data(times, self.chart_data['fatigue'])
             self.chart_lines['quality'].set_data(times, self.chart_data['quality'])
             
@@ -418,78 +427,30 @@ class EyeTrackerUI:
         """Initialize chart lines for efficient updates"""
         try:
             # Eye openness chart
-            self.ax1.set_facecolor('#f8f9fa')
-            self.ax1.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
-            self.ax1.tick_params(colors='#6c757d', labelsize=8)
-            self.ax1.spines['top'].set_visible(False)
-            self.ax1.spines['right'].set_visible(False)
-            self.ax1.spines['left'].set_color('#dee2e6')
-            self.ax1.spines['bottom'].set_color('#dee2e6')
-            self.ax1.set_title('Eye Openness', color='#212529', fontsize=11, fontweight='bold', pad=8)
-            
+            self.configure_subplot(self.ax1, 'Eye Openness')
             self.chart_lines['left_eye'], = self.ax1.plot([], [], color='#007bff', linewidth=2, alpha=0.8, label='Left')
             self.chart_lines['right_eye'], = self.ax1.plot([], [], color='#28a745', linewidth=2, alpha=0.8, label='Right')
             self.ax1.legend(fontsize=8, framealpha=0.9)
             
             # Blink rate chart
-            self.ax2.set_facecolor('#f8f9fa')
-            self.ax2.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
-            self.ax2.tick_params(colors='#6c757d', labelsize=8)
-            self.ax2.spines['top'].set_visible(False)
-            self.ax2.spines['right'].set_visible(False)
-            self.ax2.spines['left'].set_color('#dee2e6')
-            self.ax2.spines['bottom'].set_color('#dee2e6')
-            self.ax2.set_title('Blink Rate', color='#212529', fontsize=11, fontweight='bold', pad=8)
-            
+            self.configure_subplot(self.ax2, 'Blink Rate')
             self.chart_lines['blink_rate'], = self.ax2.plot([], [], color='#ffc107', linewidth=2, alpha=0.8)
             
             # Saccade rate chart
-            self.ax3.set_facecolor('#f8f9fa')
-            self.ax3.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
-            self.ax3.tick_params(colors='#6c757d', labelsize=8)
-            self.ax3.spines['top'].set_visible(False)
-            self.ax3.spines['right'].set_visible(False)
-            self.ax3.spines['left'].set_color('#dee2e6')
-            self.ax3.spines['bottom'].set_color('#dee2e6')
-            self.ax3.set_title('Additional Metric', color='#212529', fontsize=11, fontweight='bold', pad=8)
-            
-            self.chart_lines['additional_metric'], = self.ax3.plot([], [], color='#fd7e14', linewidth=2, alpha=0.8)
+            self.configure_subplot(self.ax3, 'Saccade Rate')
+            self.chart_lines['saccade_rate'], = self.ax3.plot([], [], color='#fd7e14', linewidth=2, alpha=0.8)
             
             # Fatigue chart
-            self.ax4.set_facecolor('#f8f9fa')
-            self.ax4.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
-            self.ax4.tick_params(colors='#6c757d', labelsize=8)
-            self.ax4.spines['top'].set_visible(False)
-            self.ax4.spines['right'].set_visible(False)
-            self.ax4.spines['left'].set_color('#dee2e6')
-            self.ax4.spines['bottom'].set_color('#dee2e6')
-            self.ax4.set_title('Fatigue Score', color='#212529', fontsize=11, fontweight='bold', pad=8)
-            
+            self.configure_subplot(self.ax4, 'Fatigue Score')
             self.chart_lines['fatigue'], = self.ax4.plot([], [], color='#dc3545', linewidth=2, alpha=0.8)
             
             # Quality chart
-            self.ax5.set_facecolor('#f8f9fa')
-            self.ax5.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
-            self.ax5.tick_params(colors='#6c757d', labelsize=8)
-            self.ax5.spines['top'].set_visible(False)
-            self.ax5.spines['right'].set_visible(False)
-            self.ax5.spines['left'].set_color('#dee2e6')
-            self.ax5.spines['bottom'].set_color('#dee2e6')
-            self.ax5.set_title('Quality', color='#212529', fontsize=11, fontweight='bold', pad=8)
-            
+            self.configure_subplot(self.ax5, 'Quality')
             self.chart_lines['quality'], = self.ax5.plot([], [], color='#6f42c1', linewidth=2, alpha=0.8)
             
-            # Additional metric chart
-            self.ax6.set_facecolor('#f8f9fa')
-            self.ax6.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
-            self.ax6.tick_params(colors='#6c757d', labelsize=8)
-            self.ax6.spines['top'].set_visible(False)
-            self.ax6.spines['right'].set_visible(False)
-            self.ax6.spines['left'].set_color('#dee2e6')
-            self.ax6.spines['bottom'].set_color('#dee2e6')
-            self.ax6.set_title('Additional Metric', color='#212529', fontsize=11, fontweight='bold', pad=8)
-            
-            self.chart_lines['additional_metric'], = self.ax6.plot([], [], color='#20c997', linewidth=2, alpha=0.8)
+            # Microsaccade rate chart
+            self.configure_subplot(self.ax6, 'Microsaccade Rate')
+            self.chart_lines['microsaccade_rate'], = self.ax6.plot([], [], color='#20c997', linewidth=2, alpha=0.8)
                 
         except Exception as e:
             print(f"Error initializing charts: {e}")

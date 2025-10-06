@@ -876,6 +876,9 @@ class EyeTracker:
                 gaze_variance = np.var(recent_gaze, axis=0).mean()
                 variance_stability = max(0.0, 1.0 - gaze_variance * 20)  # Adjust multiplier based on testing
                 
+                # Calculate velocity stability
+                velocity_stability = max(0.0, 1.0 - avg_velocity * 10)  # Adjust multiplier based on testing
+                
                 # Combine both measures for more robust stability
                 stability = 0.6 * velocity_stability + 0.4 * variance_stability
                 return stability
@@ -883,15 +886,6 @@ class EyeTracker:
                 return 1.0
         else:
             return 1.0
-        gaze_variance = np.var(recent_gaze)
-        
-        # Lower variance indicates more stable gaze
-        stability = max(0.0, 1.0 - gaze_variance * 10)
-        return stability
-    
-    def _calculate_cognitive_load_score(self):
-        # Cognitive load calculation removed
-        return 0.0
     
     def _calculate_cognitive_load_score(self):
         # Cognitive load calculation removed
@@ -923,4 +917,166 @@ class EyeTracker:
         if 'face_landmarks' in data and len(data['face_landmarks']) > landmark_index:
             lm = data['face_landmarks'][landmark_index]
             return (lm[0], lm[1])
-        return None 
+        return None
+
+
+class AdvancedEyeTracker(EyeTracker):
+    """
+    Advanced eye tracking system with research-grade features
+    """
+    
+    def __init__(self, camera_index=0, research_mode=True):
+        super().__init__(camera_index, research_mode)
+        
+        # Additional research-specific attributes
+        self.research_mode = research_mode
+        self.calibration_in_progress = False
+        self.research_metrics = {
+            'cognitive_load': deque(maxlen=200),
+            'fatigue_score': deque(maxlen=200),
+            'attention_level': deque(maxlen=200),
+            'fixation_accuracy': deque(maxlen=200)
+        }
+        
+        # Initialize research-specific components
+        self.setup_research_components()
+    
+    def setup_research_components(self):
+        """Set up additional components for research mode"""
+        # Add any research-specific initialization here
+        pass
+
+    def _advanced_analysis(self, data):
+        """Perform advanced analysis specific to research mode"""
+        super()._advanced_analysis(data)
+        
+        # Add research-specific metrics
+        cognitive_load = self._calculate_cognitive_load_score()
+        fatigue_level = self._calculate_fatigue_score()
+        attention_level = self._calculate_attention_level()
+        
+        data.update({
+            'cognitive_load': cognitive_load,
+            'fatigue_score': fatigue_level,
+            'attention_level': attention_level
+        })
+        
+        # Store in research metrics
+        self.research_metrics['cognitive_load'].append(cognitive_load)
+        self.research_metrics['fatigue_score'].append(fatigue_level)
+        self.research_metrics['attention_level'].append(attention_level)
+    
+    def _calculate_cognitive_load_score(self):
+        """Calculate cognitive load based on multiple indicators"""
+        # Implement cognitive load assessment based on eye tracking features
+        # Using pupil diameter changes, blink rate, and gaze patterns
+        
+        if not self.current_data:
+            return 0.0
+            
+        # Factors that indicate cognitive load
+        # - Pupil dilation (when not due to luminance changes)
+        # - Fixation duration and saccade patterns
+        # - Blink rate variations
+        
+        pupil_data = self.current_data.get('pupil_diameter', 0.0)
+        blink_rate = self.current_data.get('blink_rate', 0.0)
+        fixation_duration = self.current_data.get('fixation_duration', 0.0)
+        gaze_stability = self.current_data.get('gaze_stability', 0.0)
+        
+        # Simple heuristic for cognitive load based on these factors
+        # In real research, this would be more sophisticated
+        load_score = 0.0
+        if len(self.pupil_tracking_history) > 5:
+            recent_pupils = list(self.pupil_tracking_history)[-5:]
+            pupil_variance = np.var([p[0] for p in recent_pupils])  # Using x coordinate as proxy for size
+            load_score += min(0.3, pupil_variance * 5)  # Higher variance may indicate higher load
+            
+        # Lower blink rate might indicate higher cognitive load
+        if blink_rate < 10:  # Less than 10 blinks per minute is low
+            load_score += 0.2
+            
+        # Longer fixations might indicate higher load
+        if fixation_duration > 0.5:
+            load_score += min(0.3, fixation_duration)
+            
+        # Less stable gaze might indicate higher load
+        load_score += max(0.0, (1.0 - gaze_stability) * 0.2)
+        
+        return min(1.0, load_score)
+    
+    def _calculate_fatigue_score(self):
+        """Calculate fatigue score based on eye tracking indicators"""
+        # Implement fatigue assessment based on eye tracking features:
+        # - PERCLOS (Percentage of Eye Closure)
+        # - Blink rate and duration
+        # - Pupil diameter changes
+        # - Fixation patterns
+        
+        if not self.current_data:
+            return 0.0
+            
+        # Calculate based on eye openness (already computed in _extract_advanced_data)
+        left_openness = self.current_data.get('left_eye_openness', 1.0)
+        right_openness = self.current_data.get('right_eye_openness', 1.0)
+        
+        avg_openness = (left_openness + right_openness) / 2
+        
+        # Lower eye openness indicates higher fatigue
+        fatigue_from_openness = max(0.0, (1.0 - avg_openness) * 2.0)
+        
+        # Higher blink rate can indicate fatigue
+        blink_rate = self.current_data.get('blink_rate', 0.0)
+        fatigue_from_blinks = min(0.3, blink_rate * 0.01)  # Adjust multiplier based on testing
+        
+        # Combine factors for overall fatigue score
+        fatigue_score = (fatigue_from_openness * 0.7) + (fatigue_from_blinks * 0.3)
+        
+        return min(1.0, fatigue_score)
+    
+    def _calculate_attention_level(self):
+        """Calculate attention level based on gaze patterns"""
+        # Implement attention assessment based on gaze analysis
+        # - Fixation stability, saccade frequency, pupil responses
+        
+        if len(self.gaze_history) < 2:
+            return 0.5  # Neutral attention level if insufficient data
+            
+        # Calculate how much the gaze is moving
+        recent_gazes = list(self.gaze_history)[-10:] if len(self.gaze_history) >= 10 else list(self.gaze_history)
+        
+        if len(recent_gazes) < 2:
+            return 0.5
+            
+        # Calculate gaze velocity (how much the gaze point moves)
+        velocities = []
+        for i in range(1, len(recent_gazes)):
+            dist = np.linalg.norm(np.array(recent_gazes[i]) - np.array(recent_gazes[i-1]))
+            velocities.append(dist)
+            
+        avg_velocity = np.mean(velocities) if velocities else 0.0
+        
+        # Lower velocity (more stable gaze) generally indicates better attention
+        attention_level = max(0.0, 1.0 - avg_velocity * 10)  # Adjust multiplier based on testing
+        
+        return attention_level
+
+    def get_research_metrics(self):
+        """Get current research metrics"""
+        if len(self.research_metrics['cognitive_load']) == 0:
+            return {
+                'cognitive_load': 0.0,
+                'fatigue_score': 0.0,
+                'attention_level': 0.5
+            }
+        
+        return {
+            'cognitive_load': float(np.mean(list(self.research_metrics['cognitive_load']))),
+            'fatigue_score': float(np.mean(list(self.research_metrics['fatigue_score']))),
+            'attention_level': float(np.mean(list(self.research_metrics['attention_level'])))
+        }
+
+    def process_frame(self, frame):
+        """Process frame with research-specific enhancements"""
+        processed_frame = super().process_frame(frame)
+        return processed_frame 

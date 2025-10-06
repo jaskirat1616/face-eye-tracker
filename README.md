@@ -2,7 +2,7 @@
 
 🔬 **Eye Tracking System with Research Features**
 
-A high precision eye tracking system designed for research, academic studies, and cognitive science applications.
+A high precision eye tracking system designed for research, academic studies, and human-computer interaction applications.
 
 ## 🌟 Key Features
 
@@ -13,7 +13,6 @@ A high precision eye tracking system designed for research, academic studies, an
 - **Multi-modal sensor fusion** for enhanced accuracy
 
 ### 🧠 Eye Tracking Analytics
-- **Fatigue detection** using multiple indicators
 - **Attention span analysis** and processing speed assessment
 
 ### 📊 Research Tools
@@ -102,17 +101,10 @@ The system supports multiple export formats:
 - **Eye Velocity**: Movement speed and patterns
 - **Fixation Duration**: Time spent looking at specific areas
 
-### Fatigue Detection
-- **Fatigue Score**: Multi-indicator fatigue assessment
 - **Blink Pattern Analysis**: Blink rate, duration, and patterns
 - **Eye Openness**: Continuous monitoring of eye openness
 - **Head Pose**: Head position and movement analysis
 
-### Cognitive Load Assessment
-- **Cognitive Load Score**: Mental effort quantification
-- **Attention Span**: Sustained attention measurement
-- **Processing Speed**: Information processing rate
-- **Mental Effort**: Cognitive workload assessment
 
 ### Quality Metrics
 - **Tracking Quality**: Overall system performance
@@ -126,8 +118,6 @@ The system supports multiple export formats:
 
 #### AdvancedEyeTracker
 - High-precision pupil tracking
-- Fatigue detection algorithms
-- Cognitive load assessment
 - Real-time quality monitoring
 
 #### ResearchEyeTrackerUI
@@ -189,7 +179,6 @@ face_eye_tracker/
 ### Processing Parameters
 - **Pupil Detection Confidence**: 0.8 (high accuracy)
 - **Gaze Estimation Confidence**: 0.7 (balanced accuracy)
-- **Fatigue Detection Sensitivity**: 0.6 (moderate sensitivity)
 - **Quality Threshold**: 0.7 (minimum acceptable quality)
 
 ## 📚 Research Applications
@@ -198,7 +187,6 @@ face_eye_tracker/
 - **Cognitive science studies**
 - **Human-computer interaction research**
 - **Attention and focus studies**
-- **Fatigue and workload assessment**
 
 ### Applications
 - **Driver monitoring systems**
@@ -209,7 +197,6 @@ face_eye_tracker/
 ### User Experience Research
 - **Interface usability studies**
 - **Attention pattern analysis**
-- **Cognitive load optimization**
 - **User behavior research**
 
 ## 🛠️ Development
@@ -274,7 +261,6 @@ For questions, issues, or feature requests:
 
 # Research Eye Tracking System
 
-This is a high precision eye tracking system for monitoring cognitive load and fatigue. This updated version includes head pose estimation and an improved research UI.
 
 ## Quick Start: Running the Research UI
 
@@ -287,7 +273,6 @@ python3 face-eye-tracker/main.py --ui research
 This will launch the research interface, which includes:
 -   Real-time data visualization
 -   Head pose (yaw and roll) display
--   Cognitive load metrics
 
 ## Head Pose Estimation
 
