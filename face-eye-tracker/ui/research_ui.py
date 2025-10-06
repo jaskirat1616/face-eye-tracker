@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Research UI for Eye Tracking & Cognitive Load Detection
-================================================================
+Research UI for High Precision Eye Tracking
+=======================================================
 
 Research interface with features:
 - Real-time research metrics display
@@ -107,7 +107,7 @@ class ResearchEyeTrackerUI:
     def create_ui(self):
         """Create the Research UI"""
         self.root = tk.Tk()
-        self.root.title("Eye Tracking "Advanced Eye Tracking & Cognitive Load Research System" Cognitive Load Research System")
+        self.root.title("High Precision Eye Tracking Research System")
         self.root.geometry("1600x1000")
         self.root.configure(bg='#ffffff')
         
@@ -161,7 +161,7 @@ class ResearchEyeTrackerUI:
                               bg='#f8f9fa', fg='#212529')
         title_label.pack()
         
-        subtitle_label = tk.Label(title_frame, text="Cognitive Load & Fatigue Detection", 
+        subtitle_label = tk.Label(title_frame, text="Fatigue Detection", 
                                  font=("SF Pro Text", 12), 
                                  bg='#f8f9fa', fg='#6c757d')
         subtitle_label.pack()
@@ -528,14 +528,8 @@ class ResearchEyeTrackerUI:
         research_metrics = [
             ("Fatigue", "advanced_fatigue", "#dc3545"),
             ("Quality", "advanced_quality", "#6f42c1"),
-            ("Cognitive Load", "cognitive_load", "#fd7e14"),
-            ("Pupil Diameter", "pupil_diameter", "#20c997"),
             ("Gaze Stability", "gaze_stability", "#17a2b8"),
             ("Eye Velocity", "eye_velocity", "#ffc107"),
-            ("Fixation", "fixation_duration", "#e83e8c"),
-            ("Attention Span", "attention_span", "#6f42c1"),
-            ("Processing Spd", "processing_speed", "#28a745"),
-            ("Mental Effort", "mental_effort", "#dc3545"),
             ("Blink Rate", "blink_rate", "#17a2b8"),
             ("Saccade Rate", "saccade_rate", "#ffc107"),
             ("Head Tilt", "head_tilt", "#6610f2"),
@@ -719,9 +713,6 @@ class ResearchEyeTrackerUI:
             self.research_metrics["advanced_quality"].config(
                 text=f"{data.get('quality_score', 0):.3f}")
             
-            self.research_metrics["cognitive_load"].config(
-                text=f"{data.get('cognitive_load_score', 0):.3f}")
-            
             self.research_metrics["pupil_diameter"].config(
                 text=f"{data.get('pupil_diameter', 0):.1f}")
             
@@ -739,9 +730,6 @@ class ResearchEyeTrackerUI:
             
             self.research_metrics["processing_speed"].config(
                 text=f"{data.get('processing_speed', 0):.3f}")
-            
-            self.research_metrics["mental_effort"].config(
-                text=f"{data.get('mental_effort', 0):.3f}")
             
             self.research_metrics["blink_rate"].config(
                 text=f"{data.get('blink_rate', 0):.1f}")

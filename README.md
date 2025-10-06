@@ -1,8 +1,8 @@
-# Eye Tracking & Cognitive Load Detection System
+# High Precision Eye Tracking System
 
 🔬 **Eye Tracking System with Research Features**
 
-A research-grade eye tracking and cognitive load detection system designed for research, academic studies, and cognitive science applications.
+A research-grade eye tracking system designed for research, academic studies, and cognitive science applications.
 
 ## 🌟 Key Features
 
@@ -12,11 +12,9 @@ A research-grade eye tracking and cognitive load detection system designed for r
 - **Real-time quality assessment** and monitoring
 - **Multi-modal sensor fusion** for enhanced accuracy
 
-### 🧠 Cognitive Load Assessment
+### 🧠 Eye Tracking Analytics
 - **Fatigue detection** using multiple indicators
-- **Cognitive load measurement** based on eye movements
 - **Attention span analysis** and processing speed assessment
-- **Mental effort quantification**
 
 ### 📊 Research Tools
 - **Data logging** with multiple export formats

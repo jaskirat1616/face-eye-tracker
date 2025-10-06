@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Eye Tracking & Cognitive Load Detection Application
-===================================================
+High Precision Eye Tracking Application
+========================================
 
-A research-grade application for real-time eye tracking, 
-fatigue detection, and cognitive load assessment.
+A research-grade application for real-time eye tracking and 
+fatigue detection.
 """
 
 import sys
@@ -121,7 +121,7 @@ def check_camera():
 
 def main():
     """Main application function"""
-    parser = argparse.ArgumentParser(description="Eye Tracking & Cognitive Load Detection Application")
+    parser = argparse.ArgumentParser(description="High Precision Eye Tracking Application")
     parser.add_argument("--ui", type=str, default="research", 
                         choices=["research", "comprehensive", "simple", "modern", "headless"],
                         help="The user interface to use for the application.")
@@ -130,7 +130,7 @@ def main():
                         help="Enable research mode with features.")
     args = parser.parse_args()
 
-    print("🔬 Eye Tracking & Cognitive Load Detection System")
+    print("🔬 High Precision Eye Tracking System")
     print("=" * 60)
     print("📊 Research-Grade Eye Tracking")
     print("🧠 Cognitive Load Assessment")
@@ -157,7 +157,7 @@ def main():
         print("   - Checking System Settings > Privacy & Security > Camera")
         return 1
     
-    print(f"\n🚀 Starting Eye Tracking & Cognitive Load Detection System...")
+    print(f"\n🚀 Starting High Precision Eye Tracking System...")
     if args.ui != "headless":
         print("   Application will open in a new window")
     

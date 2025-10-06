@@ -1,4 +1,4 @@
-# 🧪 Testing Summary - Eye Tracking System
+# 🧪 Testing Summary - High Precision Eye Tracking System
 
 ## ✅ **All Tests Passed Successfully!**
 
@@ -160,7 +160,7 @@
 
 ## 🎉 **Conclusion**
 
-The Eye Tracking & Cognitive Load Detection System has been successfully tested and validated. All core features are working correctly, and the system is ready for research and academic use.
+The High Precision Eye Tracking System has been successfully tested and validated. All core features are working correctly, and the system is ready for research and academic use.
 
 ### **Key Achievements:**
 - 🔬 **Accuracy** with algorithms

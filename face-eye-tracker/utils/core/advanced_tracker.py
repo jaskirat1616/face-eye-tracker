@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Eye Tracking & Cognitive Load Detection System
+High Precision Eye Tracking System
 =====================================================================
 
 Eye tracking system with features:
@@ -665,7 +665,6 @@ class EyeTracker:
             'calibration_data': self.calibration_data,
             'events': self.research_data['events'],
             'fatigue_indicators': {k: list(v) for k, v in self.fatigue_indicators.items()},
-            'cognitive_load_indicators': {k: list(v) for k, v in self.cognitive_load_indicators.items()},
             'export_timestamp': datetime.now().isoformat()
         }
         
@@ -738,60 +737,8 @@ class EyeTracker:
         # Longer fixations can indicate fatigue
         return min(1.0, avg_fixation / 2.0)
     
-    def _calculate_attention_span(self, data):
-        """Calculate attention span based on fixation patterns"""
-        if len(self.pupil_tracking_history) < 10:
-            return 0.0
-        
-        # Calculate how long the user maintains focus
-        recent_positions = list(self.pupil_tracking_history)[-10:]
-        position_variance = np.var(recent_positions)
-        
-        # Lower variance indicates better attention span
-        attention_span = max(0.0, 1.0 - position_variance * 10)
-        return attention_span
     
-    def _calculate_processing_speed(self, data):
-        """Calculate processing speed based on eye movement patterns"""
-        if len(self.eye_movement_history) < 5:
-            return 0.0
-        
-        # Calculate average movement velocity as proxy for processing speed
-        recent_movements = list(self.eye_movement_history)[-5:]
-        avg_velocity = np.mean(recent_movements) if recent_movements else 0.0
-        
-        # Normalize to 0-1 range
-        processing_speed = min(1.0, avg_velocity * 100)
-        return processing_speed
     
-    def _calculate_mental_effort(self, data):
-        """Calculate mental effort based on multiple indicators"""
-        # Combine multiple factors for mental effort assessment
-        factors = []
-        
-        # Pupil diameter (larger pupils indicate more effort)
-        if 'pupil_diameter' in data:
-            pupil_factor = min(1.0, data['pupil_diameter'] / 20.0)
-            factors.append(pupil_factor)
-        
-        # Eye velocity (faster movements can indicate effort)
-        if 'eye_velocity' in data:
-            velocity_factor = min(1.0, data['eye_velocity'] * 10)
-            factors.append(velocity_factor)
-        
-        # Attention span (lower attention can indicate effort)
-        if 'attention_span' in data:
-            attention_factor = 1.0 - data['attention_span']
-            factors.append(attention_factor)
-        
-        if factors:
-            mental_effort = np.mean(factors)
-        else:
-            mental_effort = 0.0
-        
-        return mental_effort
-    
-    def _calculate_gaze_stability(self):
         """Calculate gaze stability based on recent gaze positions"""
         if len(self.gaze_history) < 5:
             return 0.0
@@ -802,6 +749,10 @@ class EyeTracker:
         # Lower variance indicates more stable gaze
         stability = max(0.0, 1.0 - gaze_variance * 10)
         return stability
+    
+    def _calculate_cognitive_load_score(self):
+        # Cognitive load calculation removed
+        return 0.0
     
     def _calculate_cognitive_load_score(self):
         # Cognitive load calculation removed
