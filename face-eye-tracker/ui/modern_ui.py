@@ -69,7 +69,6 @@ class EyeTrackerUI:
             'left_eye': [],
             'right_eye': [],
             'blink_rate': [],
-            'saccade_rate': [],
             'fatigue': [],
             'quality': []
         }
@@ -257,16 +256,11 @@ class EyeTrackerUI:
         comprehensive_metrics = [
             ("Eye Openness", "eye_openness", "#007bff"),
             ("Blink Rate", "blink_rate", "#28a745"),
-            ("Saccade Rate", "saccade_rate", "#ffc107"),
-            ("Microsaccade Rate", "microsaccade_rate", "#fd7e14"),
             ("Fatigue Score", "fatigue_score", "#dc3545"),
             ("Detection Quality", "quality", "#6f42c1"),
             ("Calibration Status", "calibration", "#6c757d"),
             ("Blink Duration", "blink_duration", "#17a2b8"),
-            ("Saccade Amplitude", "saccade_amplitude", "#20c997"),
-            ("Fatigue Level", "fatigue_level", "#e83e8c"),
             ("Total Blinks", "total_blinks", "#6610f2"),
-            ("Total Saccades", "total_saccades", "#fd7e14"),
             ("Session Duration", "session_time", "#20c997"),
             ("Avg Blink Duration", "avg_blink_duration", "#17a2b8"),
             ("Fatigue Trend", "fatigue_trend", "#dc3545"),
@@ -329,8 +323,8 @@ class EyeTrackerUI:
             ax.spines['bottom'].set_color('#dee2e6')
             
         # Set titles with modern styling
-        titles = ['Eye Openness', 'Blink Rate', 'Saccade Rate', 
-                 'Fatigue Score', 'Quality', 'Microsaccades']
+        titles = ['Eye Openness', 'Blink Rate', 'Additional Metric', 
+                 'Fatigue Score', 'Quality', 'Additional Metric']
         axes = [self.ax1, self.ax2, self.ax3, self.ax4, self.ax5, self.ax6]
         
         for ax, title in zip(axes, titles):
@@ -369,7 +363,6 @@ class EyeTrackerUI:
             self.chart_data['left_eye'].append(float(data.get('left_eye_openness', 0)))
             self.chart_data['right_eye'].append(float(data.get('right_eye_openness', 0)))
             self.chart_data['blink_rate'].append(float(data.get('blink_rate', 0)))
-            self.chart_data['saccade_rate'].append(float(data.get('saccade_rate', 0)))
             self.chart_data['fatigue'].append(float(data.get('overall_fatigue_score', 0)))
             self.chart_data['quality'].append(float(data.get('quality_score', 0)))
             
@@ -406,13 +399,8 @@ class EyeTrackerUI:
             self.chart_lines['left_eye'].set_data(times, self.chart_data['left_eye'])
             self.chart_lines['right_eye'].set_data(times, self.chart_data['right_eye'])
             self.chart_lines['blink_rate'].set_data(times, self.chart_data['blink_rate'])
-            self.chart_lines['saccade_rate'].set_data(times, self.chart_data['saccade_rate'])
             self.chart_lines['fatigue'].set_data(times, self.chart_data['fatigue'])
             self.chart_lines['quality'].set_data(times, self.chart_data['quality'])
-            
-            # Update microsaccade data
-            microsaccade_data = [data.get('microsaccade_rate', 0)] * len(times)
-            self.chart_lines['microsaccade'].set_data(times, microsaccade_data)
             
             # Update axis limits for smooth scrolling
             for ax in [self.ax1, self.ax2, self.ax3, self.ax4, self.ax5, self.ax6]:
@@ -463,9 +451,9 @@ class EyeTrackerUI:
             self.ax3.spines['right'].set_visible(False)
             self.ax3.spines['left'].set_color('#dee2e6')
             self.ax3.spines['bottom'].set_color('#dee2e6')
-            self.ax3.set_title('Saccade Rate', color='#212529', fontsize=11, fontweight='bold', pad=8)
+            self.ax3.set_title('Additional Metric', color='#212529', fontsize=11, fontweight='bold', pad=8)
             
-            self.chart_lines['saccade_rate'], = self.ax3.plot([], [], color='#fd7e14', linewidth=2, alpha=0.8)
+            self.chart_lines['additional_metric'], = self.ax3.plot([], [], color='#fd7e14', linewidth=2, alpha=0.8)
             
             # Fatigue chart
             self.ax4.set_facecolor('#f8f9fa')
@@ -491,7 +479,7 @@ class EyeTrackerUI:
             
             self.chart_lines['quality'], = self.ax5.plot([], [], color='#6f42c1', linewidth=2, alpha=0.8)
             
-            # Microsaccade chart
+            # Additional metric chart
             self.ax6.set_facecolor('#f8f9fa')
             self.ax6.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
             self.ax6.tick_params(colors='#6c757d', labelsize=8)
@@ -499,9 +487,9 @@ class EyeTrackerUI:
             self.ax6.spines['right'].set_visible(False)
             self.ax6.spines['left'].set_color('#dee2e6')
             self.ax6.spines['bottom'].set_color('#dee2e6')
-            self.ax6.set_title('Microsaccades', color='#212529', fontsize=11, fontweight='bold', pad=8)
+            self.ax6.set_title('Additional Metric', color='#212529', fontsize=11, fontweight='bold', pad=8)
             
-            self.chart_lines['microsaccade'], = self.ax6.plot([], [], color='#20c997', linewidth=2, alpha=0.8)
+            self.chart_lines['additional_metric'], = self.ax6.plot([], [], color='#20c997', linewidth=2, alpha=0.8)
                 
         except Exception as e:
             print(f"Error initializing charts: {e}")
@@ -515,12 +503,6 @@ class EyeTrackerUI:
             
             self.metric_labels["blink_rate"].config(
                 text=f"{data.get('blink_rate', 0):.1f}/min")
-            
-            self.metric_labels["saccade_rate"].config(
-                text=f"{data.get('saccade_rate', 0):.1f}/min")
-            
-            self.metric_labels["microsaccade_rate"].config(
-                text=f"{data.get('microsaccade_rate', 0):.1f}/min")
             
             self.metric_labels["fatigue_score"].config(
                 text=f"{data.get('overall_fatigue_score', 0):.2f}")
@@ -536,10 +518,6 @@ class EyeTrackerUI:
             blink_duration = data.get('blink_duration', 0)
             self.metric_labels["blink_duration"].config(text=f"{blink_duration:.3f}s")
             
-            # Saccade amplitude
-            saccade_amplitude = data.get('saccade_amplitude', 0)
-            self.metric_labels["saccade_amplitude"].config(text=f"{saccade_amplitude:.3f}")
-            
             # Fatigue level
             fatigue_level = data.get('fatigue_level', 'Normal')
             self.metric_labels["fatigue_level"].config(text=fatigue_level)
@@ -547,9 +525,6 @@ class EyeTrackerUI:
             # Total counts
             total_blinks = data.get('blink_counter', 0)
             self.metric_labels["total_blinks"].config(text=f"{total_blinks}")
-            
-            total_saccades = data.get('saccade_counter', 0)
-            self.metric_labels["total_saccades"].config(text=f"{total_saccades}")
             
             # Session duration
             if hasattr(self, 'session_start_time'):

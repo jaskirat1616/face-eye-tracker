@@ -97,7 +97,6 @@ class EyeTracker:
             'blink_pattern': deque(maxlen=200),
             'pupil_diameter': deque(maxlen=200),
             'fixation_duration': deque(maxlen=200),
-            'saccade_velocity': deque(maxlen=200),
             'head_movement': deque(maxlen=200),
             'eye_strain': deque(maxlen=200)
         }
@@ -341,7 +340,6 @@ class EyeTracker:
             'gaze_point': data.get('gaze_point', None),
             'quality_score': data.get('advanced_quality_score', 0.0),
             'blink_rate': data.get('blink_rate', 0.0),
-            'saccade_rate': data.get('saccade_rate', 0.0),
             'fixation_duration': data.get('fixation_duration', 0.0)
         }
         self.research_data['events'].append(research_entry)
@@ -431,7 +429,6 @@ class EyeTracker:
         data['left_eye_openness'] = left_eye_openness
         data['right_eye_openness'] = right_eye_openness
         data['blink_rate'] = self._calculate_blink_rate()
-        data['saccade_rate'] = self._calculate_saccade_rate()
         data['fixation_duration'] = self._calculate_fixation_duration([])  # Use actual velocities if available
         return data
     
@@ -770,20 +767,6 @@ class EyeTracker:
                 return (len(self.blink_times) / time_window) * 60
         return 0.0
     
-    def _calculate_saccade_rate(self):
-        """Calculate saccade rate per minute"""
-        # This would be implemented with actual saccade detection
-        # For now, return a simulated value based on eye velocity
-        if len(self.eye_movement_history) > 0:
-            recent_velocities = list(self.eye_movement_history)[-10:]
-            avg_velocity = np.mean(recent_velocities)
-            # Convert velocity to saccade rate (simplified)
-            saccade_rate = min(60, avg_velocity * 100)
-        else:
-            saccade_rate = 20  # Default saccade rate
-        
-        return saccade_rate
-
     def _get_camera_matrix(self, width, height):
         """Get the camera matrix"""
         focal_length = width

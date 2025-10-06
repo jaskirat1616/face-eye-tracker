@@ -63,7 +63,6 @@ class EyeTrackerUI:
         self.session_start_time = None
         self.session_data = {
             'total_blinks': 0,
-            'total_saccades': 0,
             'avg_fatigue': 0.0,
             'peak_fatigue': 0.0,
             'attention_score': 0.0
@@ -244,7 +243,6 @@ class EyeTrackerUI:
         self.create_metric_display(metrics_frame, "Left Eye Openness", "left_eye_label")
         self.create_metric_display(metrics_frame, "Right Eye Openness", "right_eye_label")
         self.create_metric_display(metrics_frame, "Blink Rate (/min)", "blink_rate_label")
-        self.create_metric_display(metrics_frame, "Saccade Rate (/min)", "saccade_rate_label")
         self.create_metric_display(metrics_frame, "Quality Score", "quality_label")
         self.create_metric_display(metrics_frame, "Fatigue Level", "fatigue_label")
         self.create_metric_display(metrics_frame, "Attention Score", "attention_label")
@@ -274,7 +272,6 @@ class EyeTrackerUI:
                 bg='#2d2d2d', fg='white').pack(pady=10)
         
         self.create_metric_display(session_frame, "Total Blinks", "total_blinks_label")
-        self.create_metric_display(session_frame, "Total Saccades", "total_saccades_label")
         self.create_metric_display(session_frame, "Avg Fatigue", "avg_fatigue_label")
         self.create_metric_display(session_frame, "Peak Fatigue", "peak_fatigue_label")
         
@@ -411,10 +408,6 @@ class EyeTrackerUI:
             ("Right Eye Openness", "right_eye_data"),
             ("Blink Rate (/min)", "blink_rate_data"),
             ("Blink Duration (s)", "blink_duration_data"),
-            ("Saccade Rate (/min)", "saccade_rate_data"),
-            ("Saccade Amplitude", "saccade_amplitude_data"),
-            ("Saccade Velocity", "saccade_velocity_data"),
-            ("Microsaccade Rate (/min)", "microsaccade_rate_data"),
             ("Quality Score", "quality_data"),
             ("Calibration Status", "calibration_data")
         ])
@@ -666,10 +659,6 @@ class EyeTrackerUI:
             self.right_eye_data.config(text=f"{data['right_eye_openness']:.3f}")
             self.blink_rate_data.config(text=f"{data['blink_rate']:.1f}")
             self.blink_duration_data.config(text=f"{data['blink_duration']:.3f}")
-            self.saccade_rate_data.config(text=f"{data['saccade_rate']:.1f}")
-            self.saccade_amplitude_data.config(text=f"{data['saccade_amplitude']:.3f}")
-            self.saccade_velocity_data.config(text=f"{data['saccade_velocity']:.3f}")
-            self.microsaccade_rate_data.config(text=f"{data['microsaccade_rate']:.1f}")
             self.quality_data.config(text=f"{data['quality_score']:.2f}")
             
             # Update calibration status
@@ -741,7 +730,6 @@ class EyeTrackerUI:
         self.session_start_time = time.time()
         self.session_data = {
             'total_blinks': 0,
-            'total_saccades': 0,
             'avg_fatigue': 0.0,
             'peak_fatigue': 0.0,
             'attention_score': 0.0
@@ -815,7 +803,6 @@ class EyeTrackerUI:
         self.left_eye_label.config(text=f"{data['left_eye_openness']:.3f}")
         self.right_eye_label.config(text=f"{data['right_eye_openness']:.3f}")
         self.blink_rate_label.config(text=f"{data['blink_rate']:.1f}")
-        self.saccade_rate_label.config(text=f"{data['saccade_rate']:.1f}")
         self.quality_label.config(text=f"{data['quality_score']:.2f}")
         self.fatigue_label.config(text=data['fatigue_level'])
         
@@ -833,16 +820,12 @@ class EyeTrackerUI:
         # Update session data
         if data.get('blink_detected', False):
             self.session_data['total_blinks'] += 1
-        if data.get('saccade_detected', False):
-            self.session_data['total_saccades'] += 1
             
         self.session_data['peak_fatigue'] = max(self.session_data['peak_fatigue'], data['overall_fatigue_score'])
         
         # Update session summary
         self.total_blinks_label.config(text=str(self.session_data['total_blinks']))
-        self.total_saccades_label.config(text=str(self.session_data['total_saccades']))
         self.peak_fatigue_label.config(text=f"{self.session_data['peak_fatigue']:.2f}")
-        
         # Update performance metrics
         if hasattr(self, 'last_frame_time'):
             current_time = time.time()
@@ -893,7 +876,6 @@ class EyeTrackerUI:
             export_data = {
                 'session_duration_minutes': session_duration / 60,
                 'total_blinks': self.session_data['total_blinks'],
-                'total_saccades': self.session_data['total_saccades'],
                 'peak_fatigue_score': self.session_data['peak_fatigue'],
                 'average_fatigue_score': self.session_data.get('avg_fatigue', 0.0),
                 'attention_score': self.session_data.get('attention_score', 0.0),

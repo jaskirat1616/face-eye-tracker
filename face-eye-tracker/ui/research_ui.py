@@ -97,7 +97,6 @@ class ResearchEyeTrackerUI:
             'gaze_stability': [],
             'eye_velocity': [],
             'blink_rate': [],
-            'saccade_rate': [],
             'fixation_duration': [],
             'head_tilt': [],
             'head_yaw': [],
@@ -531,7 +530,6 @@ class ResearchEyeTrackerUI:
             ("Gaze Stability", "gaze_stability", "#17a2b8"),
             ("Eye Velocity", "eye_velocity", "#ffc107"),
             ("Blink Rate", "blink_rate", "#17a2b8"),
-            ("Saccade Rate", "saccade_rate", "#ffc107"),
             ("Head Tilt", "head_tilt", "#6610f2"),
             ("Head Yaw", "head_yaw", "#6610f2"),
             ("Head Roll", "head_roll", "#6610f2"),
@@ -574,13 +572,13 @@ class ResearchEyeTrackerUI:
 
         self.ax1 = self.fig.add_subplot(gs[0, 0])  # Eye State
         self.ax2 = self.fig.add_subplot(gs[0, 1])  # Blink Rate
-        self.ax3 = self.fig.add_subplot(gs[1, :])  # Saccadic Rate & Fixation Duration
+        self.ax3 = self.fig.add_subplot(gs[1, :])  # Fixation Duration
         self.ax4 = self.fig.add_subplot(gs[2, :])  # Head Pose (Yaw, Pitch, Roll)
 
         axes = [self.ax1, self.ax2, self.ax3, self.ax4]
         titles = [
             'Eye State (Openness)', 'Blink Rate',
-            'Saccadic Rate & Fixation Duration', 'Head Pose (Yaw, Pitch, Roll)'
+            'Fixation Duration', 'Head Pose (Yaw, Pitch, Roll)'
         ]
         for ax, title in zip(axes, titles):
             ax.set_facecolor('#f8f9fa')
@@ -631,7 +629,6 @@ class ResearchEyeTrackerUI:
             self.chart_data['gaze_stability'].append(float(data.get('gaze_stability', 0)))
             self.chart_data['eye_velocity'].append(float(data.get('eye_velocity', 0)))
             self.chart_data['blink_rate'].append(float(data.get('blink_rate', 0)))
-            self.chart_data['saccade_rate'].append(float(data.get('saccade_rate', 0)))
             self.chart_data['fixation_duration'].append(float(data.get('fixation_duration', 0)))
             self.chart_data['head_tilt'].append(float(data.get('head_tilt', 0)))
             self.chart_data['head_yaw'].append(float(data.get('head_yaw', 0)))
@@ -665,7 +662,6 @@ class ResearchEyeTrackerUI:
             self.chart_lines['left_eye'].set_data(times, self.chart_data['left_eye_openness'])
             self.chart_lines['right_eye'].set_data(times, self.chart_data['right_eye_openness'])
             self.chart_lines['blink_rate'].set_data(times, self.chart_data['blink_rate'])
-            self.chart_lines['saccade_rate'].set_data(times, self.chart_data['saccade_rate'])
             self.chart_lines['fixation_duration'].set_data(times, self.chart_data['fixation_duration'])
             self.chart_lines['head_yaw'].set_data(times, self.chart_data['head_yaw'])
             self.chart_lines['head_tilt'].set_data(times, self.chart_data['head_tilt'])
@@ -675,7 +671,7 @@ class ResearchEyeTrackerUI:
                 ax.autoscale_view()
             return [self.chart_lines['left_eye'], self.chart_lines['right_eye'],
                     self.chart_lines['blink_rate'],
-                    self.chart_lines['saccade_rate'], self.chart_lines['fixation_duration'],
+                    self.chart_lines['fixation_duration'],
                     self.chart_lines['head_yaw'], self.chart_lines['head_tilt'], self.chart_lines['head_roll']]
         except Exception as e:
             print(f"Chart plot update error: {e}")
@@ -691,8 +687,7 @@ class ResearchEyeTrackerUI:
             # Ax2: Blink Rate
             self.chart_lines['blink_rate'], = self.ax2.plot([], [], color='#ffc107', lw=2, alpha=0.9, label='Blink Rate')
             self.ax2.legend(fontsize=8)
-            # Ax3: Saccadic Rate & Fixation Duration
-            self.chart_lines['saccade_rate'], = self.ax3.plot([], [], color='#fd7e14', lw=2, alpha=0.9, label='Saccadic Rate')
+            # Ax3: Fixation Duration
             self.chart_lines['fixation_duration'], = self.ax3.plot([], [], color='#17a2b8', lw=2, alpha=0.9, label='Fixation Duration')
             self.ax3.legend(fontsize=8)
             # Ax4: Head Pose (Yaw, Pitch, Roll)
@@ -733,9 +728,6 @@ class ResearchEyeTrackerUI:
             
             self.research_metrics["blink_rate"].config(
                 text=f"{data.get('blink_rate', 0):.1f}")
-            
-            self.research_metrics["saccade_rate"].config(
-                text=f"{data.get('saccade_rate', 0):.1f}")
             
             self.research_metrics["head_tilt"].config(
                 text=f"{data.get('head_tilt', 0):.3f}")
