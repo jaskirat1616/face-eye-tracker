@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Advanced Eye Tracking & Cognitive Load Detection Application
-===========================================================
+Eye Tracking & Cognitive Load Detection Application
+===================================================
 
-A professional, research-grade application for real-time eye tracking, 
-fatigue detection, and cognitive load assessment with advanced features.
+A research-grade application for real-time eye tracking, 
+fatigue detection, and cognitive load assessment.
 """
 
 import sys
@@ -121,20 +121,20 @@ def check_camera():
 
 def main():
     """Main application function"""
-    parser = argparse.ArgumentParser(description="Advanced Eye Tracking & Cognitive Load Detection Application")
+    parser = argparse.ArgumentParser(description="Eye Tracking & Cognitive Load Detection Application")
     parser.add_argument("--ui", type=str, default="research", 
                         choices=["research", "comprehensive", "simple", "modern", "headless"],
                         help="The user interface to use for the application.")
     parser.add_argument("--camera", type=int, default=0, help="The camera index to use.")
     parser.add_argument("--research-mode", action="store_true", default=True,
-                        help="Enable research mode with advanced features.")
+                        help="Enable research mode with features.")
     args = parser.parse_args()
 
-    print("🔬 Advanced Eye Tracking & Cognitive Load Detection System")
+    print("🔬 Eye Tracking & Cognitive Load Detection System")
     print("=" * 60)
-    print("📊 Professional Research-Grade Eye Tracking")
+    print("📊 Research-Grade Eye Tracking")
     print("🧠 Cognitive Load Assessment")
-    print("😴 Advanced Fatigue Detection")
+    print("😴 Fatigue Detection")
     print("📈 Real-time Analytics & Export")
     print("=" * 60)
     
@@ -157,13 +157,13 @@ def main():
         print("   - Checking System Settings > Privacy & Security > Camera")
         return 1
     
-    print(f"\n🚀 Starting Advanced Eye Tracking & Cognitive Load Detection System...")
+    print(f"\n🚀 Starting Eye Tracking & Cognitive Load Detection System...")
     if args.ui != "headless":
         print("   Application will open in a new window")
     
     if args.ui == "research":
         print("\n🔬 Research Mode Features:")
-        print("   • Advanced calibration with 9-point system")
+        print("   • calibration with 9-point system")
         print("   • High-precision pupil tracking")
         print("   • Cognitive load assessment")
         print("   • Research-grade data logging")

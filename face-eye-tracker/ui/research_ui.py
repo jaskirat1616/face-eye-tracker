@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Advanced Research UI for Eye Tracking & Cognitive Load Detection
+Research UI for Eye Tracking & Cognitive Load Detection
 ================================================================
 
-Professional research interface with advanced features:
+Research interface with features:
 - Real-time research metrics display
-- Advanced calibration interface
+- calibration interface
 - Research data visualization
 - Export capabilities
 - Session management
@@ -105,9 +105,9 @@ class ResearchEyeTrackerUI:
         }
         
     def create_ui(self):
-        """Create the advanced research UI"""
+        """Create the Research UI"""
         self.root = tk.Tk()
-        self.root.title("Advanced Eye Tracking & Cognitive Load Research System")
+        self.root.title("Eye Tracking "Advanced Eye Tracking & Cognitive Load Research System" Cognitive Load Research System")
         self.root.geometry("1600x1000")
         self.root.configure(bg='#ffffff')
         
@@ -126,11 +126,11 @@ class ResearchEyeTrackerUI:
         self.create_research_sidebar()
         self.create_main_content()
         self.create_research_metrics()
-        self.create_advanced_charts()
+        self.create_charts()
         self.create_calibration_interface()
         
     def create_research_sidebar(self):
-        """Create a scrollable research sidebar with advanced controls"""
+        """Create a scrollable research sidebar with controls"""
         sidebar_container = tk.Frame(self.root, bg='#f8f9fa', width=350)
         sidebar_container.grid(row=0, column=0, rowspan=2, sticky="nsew", padx=2, pady=2)
         sidebar_container.grid_propagate(False)
@@ -236,7 +236,7 @@ class ResearchEyeTrackerUI:
         
     def create_calibration_controls(self, parent):
         """Create calibration controls"""
-        calib_frame = tk.LabelFrame(parent, text="Advanced Calibration", 
+        calib_frame = tk.LabelFrame(parent, text="Calibration", 
                                    font=("SF Pro Text", 12, "bold"),
                                    bg='#f8f9fa', fg='#212529', bd=1)
         calib_frame.pack(fill='x', padx=15, pady=10)
@@ -526,8 +526,8 @@ class ResearchEyeTrackerUI:
 
         # Research metrics
         research_metrics = [
-            ("Adv. Fatigue", "advanced_fatigue", "#dc3545"),
-            ("Adv. Quality", "advanced_quality", "#6f42c1"),
+            ("Fatigue", "advanced_fatigue", "#dc3545"),
+            ("Quality", "advanced_quality", "#6f42c1"),
             ("Cognitive Load", "cognitive_load", "#fd7e14"),
             ("Pupil Diameter", "pupil_diameter", "#20c997"),
             ("Gaze Stability", "gaze_stability", "#17a2b8"),
@@ -566,7 +566,7 @@ class ResearchEyeTrackerUI:
             
             self.research_metrics[key] = value_label
     
-    def create_advanced_charts(self):
+    def create_charts(self):
         """Create research charts with new layout"""
         charts_frame = tk.Frame(self.root, bg='#ffffff', relief='flat', bd=1)
         charts_frame.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=5, pady=5)
@@ -632,7 +632,7 @@ class ResearchEyeTrackerUI:
             self.chart_data['time'].append(current_time)
             self.chart_data['left_eye_openness'].append(float(data.get('left_eye_openness', 0)))
             self.chart_data['right_eye_openness'].append(float(data.get('right_eye_openness', 0)))
-            self.chart_data['quality'].append(float(data.get('advanced_quality_score', 0)))
+            self.chart_data['quality'].append(float(data.get('quality_score', 0)))
             self.chart_data['pupil_diameter'].append(float(data.get('pupil_diameter', 0)))
             self.chart_data['gaze_stability'].append(float(data.get('gaze_stability', 0)))
             self.chart_data['eye_velocity'].append(float(data.get('eye_velocity', 0)))
@@ -714,10 +714,10 @@ class ResearchEyeTrackerUI:
         try:
             # Update all research metrics
             self.research_metrics["advanced_fatigue"].config(
-                text=f"{data.get('advanced_fatigue_score', 0):.3f}")
+                text=f"{data.get('fatigue_score', 0):.3f}")
             
             self.research_metrics["advanced_quality"].config(
-                text=f"{data.get('advanced_quality_score', 0):.3f}")
+                text=f"{data.get('quality_score', 0):.3f}")
             
             self.research_metrics["cognitive_load"].config(
                 text=f"{data.get('cognitive_load_score', 0):.3f}")
@@ -903,7 +903,7 @@ class ResearchEyeTrackerUI:
     def export_research_data(self):
         """Export research data"""
         try:
-            # Create comprehensive export data
+            # Create standard export data
             export_data = {
                 'session_info': {
                     'session_start': self.session_start_time,
@@ -1094,7 +1094,7 @@ class ResearchEyeTrackerUI:
         data = self.tracker.get_current_data()
         if data:
             # Update data quality
-            quality_score = data.get('advanced_quality_score', 0)
+            quality_score = data.get('quality_score', 0)
             if quality_score < self.quality_threshold.get():
                 self.data_quality_label.config(text="Poor", fg="#dc3545")
                 self.quality_warning_label.config(text="Data quality below threshold!", fg="#dc3545")
@@ -1104,7 +1104,7 @@ class ResearchEyeTrackerUI:
             
             # Update quality indicators
             self.quality_indicators["tracking_quality"].config(
-                text=f"{data.get('advanced_quality_score', 0):.2f}")
+                text=f"{data.get('quality_score', 0):.2f}")
             self.quality_indicators["calibration_quality"].config(
                 text=f"{self.tracker.calibration_quality:.2f}")
             self.quality_indicators["face_detection"].config(
@@ -1168,7 +1168,7 @@ class ResearchEyeTrackerUI:
                 self.gaze_estimation_warning_label.config(text="", fg="#dc3545")
             
             # Overall data quality warning
-            quality_score = data.get('advanced_quality_score', 0)
+            quality_score = data.get('quality_score', 0)
             if quality_score < self.quality_threshold.get():
                 self.quality_warning_label.config(text=f"Quality below threshold ({quality_score:.2f})", fg="#dc3545")
             else:
@@ -1188,8 +1188,8 @@ class ResearchEyeTrackerUI:
             if data:
                 # Prepare metrics text
                 metrics = [
-                    f"Fatigue: {data.get('advanced_fatigue_score', 0):.2f}",
-                    f"Quality: {data.get('advanced_quality_score', 0):.2f}",
+                    f"Fatigue: {data.get('fatigue_score', 0):.2f}",
+                    f"Quality: {data.get('quality_score', 0):.2f}",
                     f"Pupil Diameter: {data.get('pupil_diameter', 0):.1f}px",
                     f"Head Yaw: {data.get('head_yaw', 0):.1f}",
                     f"Head Roll: {data.get('head_roll', 0):.1f}"

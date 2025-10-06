@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Advanced Research-Grade Eye Tracking & Cognitive Load Detection System
+Eye Tracking & Cognitive Load Detection System
 =====================================================================
 
-Professional-grade eye tracking system with advanced research features:
+Eye tracking system with features:
 - High-precision pupil tracking with sub-pixel accuracy
-- Advanced fatigue detection algorithms
+- Fatigue detection algorithms
 - Cognitive load assessment
 - Research-grade data logging and analysis
 - Real-time quality assessment and calibration
@@ -70,9 +70,9 @@ FACE_MESH_CUSTOM_CONNECTIONS = list(
     FACE_MESH_RIGHT_IRIS
 )
 
-class AdvancedEyeTracker:
+class EyeTracker:
     """
-    Advanced research-grade eye tracking system with professional features
+    Eye tracking system with professional features
     """
     
     def __init__(self, camera_index=0, research_mode=True):
@@ -92,7 +92,7 @@ class AdvancedEyeTracker:
         self.gaze_history = deque(maxlen=1000)
         self.eye_movement_history = deque(maxlen=1000)
         
-        # Advanced fatigue detection
+        # Fatigue detection
         self.fatigue_indicators = {
             'blink_pattern': deque(maxlen=200),
             'pupil_diameter': deque(maxlen=200),
@@ -112,7 +112,7 @@ class AdvancedEyeTracker:
             'annotations': []
         }
         
-        # Initialize MediaPipe with advanced settings
+        # Initialize MediaPipe with settings
         self._initialize_mediapipe()
         
         # Advanced processing parameters
@@ -139,7 +139,7 @@ class AdvancedEyeTracker:
         }
     
     def _initialize_mediapipe(self):
-        """Initialize MediaPipe with advanced research settings"""
+        """Initialize MediaPipe with research settings"""
         model_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 'face_landmarker.task')
         
         base_options = python.BaseOptions(model_asset_path=model_path)
@@ -167,7 +167,7 @@ class AdvancedEyeTracker:
             [150.0, -150.0, -125.0]     # Right mouth corner
         ])
         
-        # Advanced landmark indices for research
+        # Landmark indices for research
         self.landmark_indices = {
             'left_eye': [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398],
             'right_eye': [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246],
@@ -183,7 +183,7 @@ class AdvancedEyeTracker:
         self.RIGHT_EYE_VERTICAL_PAIRS = [(1, 5), (2, 4), (3, 7), (8, 12), (9, 11), (0, 6)]
     
     def _result_callback(self, result: vision.FaceLandmarkerResult, output_image, timestamp_ms: int):
-        """Advanced callback for MediaPipe results"""
+        """Callback for MediaPipe results"""
         self.result = result
         self.timestamp = timestamp_ms
     
@@ -202,7 +202,7 @@ class AdvancedEyeTracker:
         return (vertical_distance / horizontal_distance) if horizontal_distance > 0 else 0.0
 
     def start_calibration(self):
-        """Start advanced calibration procedure"""
+        """Start calibration procedure"""
         self.calibration_points = [
             (0.1, 0.1), (0.5, 0.1), (0.9, 0.1),  # Top row
             (0.1, 0.5), (0.5, 0.5), (0.9, 0.5),  # Middle row
@@ -212,7 +212,7 @@ class AdvancedEyeTracker:
         self.calibration_complete = False
         self.calibration_quality = 0.0
         
-        print("🔬 Starting advanced calibration procedure...")
+        print("🔬 Starting calibration procedure...")
         return self.calibration_points
     
     def calibrate_point(self, point_index, gaze_data):
@@ -253,8 +253,8 @@ class AdvancedEyeTracker:
         return False
     
     def _create_calibration_model(self):
-        """Create advanced calibration model for gaze estimation"""
-        # This would implement advanced gaze mapping algorithms
+        """Create calibration model for gaze estimation"""
+        # This would implement gaze mapping algorithms
         # For now, we'll use a simple linear model
         self.calibration_model = {
             'quality': self.calibration_quality,
@@ -347,7 +347,7 @@ class AdvancedEyeTracker:
         self.research_data['events'].append(research_entry)
     
     def process_frame(self, frame):
-        """Process frame with advanced research features"""
+        """Process frame with features"""
         if not self.is_running:
             return frame
         

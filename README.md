@@ -1,30 +1,30 @@
-# Advanced Eye Tracking & Cognitive Load Detection System
+# Eye Tracking & Cognitive Load Detection System
 
-🔬 **Professional Research-Grade Eye Tracking System with Advanced Features**
+🔬 **Eye Tracking System with Research Features**
 
-A comprehensive, research-grade eye tracking and cognitive load detection system designed for professional research, academic studies, and cognitive science applications.
+A research-grade eye tracking and cognitive load detection system designed for research, academic studies, and cognitive science applications.
 
 ## 🌟 Key Features
 
-### 🔬 Research-Grade Accuracy
+### 🔬 Research Accuracy
 - **High-precision pupil tracking** with sub-pixel accuracy
-- **Advanced calibration system** with 9-point calibration
+- **Calibration system** with 9-point calibration
 - **Real-time quality assessment** and monitoring
 - **Multi-modal sensor fusion** for enhanced accuracy
 
 ### 🧠 Cognitive Load Assessment
-- **Advanced fatigue detection** using multiple indicators
+- **Fatigue detection** using multiple indicators
 - **Cognitive load measurement** based on eye movements
 - **Attention span analysis** and processing speed assessment
 - **Mental effort quantification**
 
-### 📊 Professional Research Tools
-- **Comprehensive data logging** with multiple export formats
-- **Real-time analytics dashboard** with advanced charts
+### 📊 Research Tools
+- **Data logging** with multiple export formats
+- **Real-time analytics dashboard** with charts
 - **Session management** and annotation capabilities
 - **Quality monitoring** and statistical analysis
 
-### 🎯 Advanced Calibration
+### 🎯 Calibration
 - **9-point calibration system** for high accuracy
 - **Real-time calibration quality assessment**
 - **Adaptive calibration** based on user performance
@@ -54,7 +54,7 @@ pip install -r requirements.txt
 
 ### Running the Application
 
-#### Research Mode (Recommended)
+#### Research Mode
 ```bash
 python run_eye_tracker.py --ui research
 ```
@@ -67,7 +67,7 @@ python run_eye_tracker.py --ui modern
 # Simple UI
 python run_eye_tracker.py --ui simple
 
-# Comprehensive UI
+# Full Feature UI
 python run_eye_tracker.py --ui comprehensive
 
 # Headless mode
@@ -76,7 +76,7 @@ python run_eye_tracker.py --ui headless
 
 ## 🔬 Research Mode Features
 
-### Advanced Calibration
+### Calibration
 1. **Start Calibration**: Click "Start Calibration" in the research interface
 2. **Follow Points**: Look at each of the 9 calibration points as prompted
 3. **Quality Assessment**: Monitor calibration quality in real-time
@@ -86,13 +86,13 @@ python run_eye_tracker.py --ui headless
 1. **Start Session**: Begin data collection with "Start Research Session"
 2. **Monitor Metrics**: Watch real-time research metrics and quality indicators
 3. **Add Annotations**: Mark significant events or conditions during the session
-4. **Export Data**: Export comprehensive research data for analysis
+4. **Export Data**: Export research data for analysis
 
 ### Data Export
 The system supports multiple export formats:
 - **JSON**: Complete session data with metadata
 - **CSV**: Tabular data for statistical analysis
-- **Excel**: Multi-sheet workbook with comprehensive data
+- **Excel**: Multi-sheet workbook with data
 - **Pickle**: Python-compatible data format
 
 ## 📊 Research Metrics
@@ -105,7 +105,7 @@ The system supports multiple export formats:
 - **Fixation Duration**: Time spent looking at specific areas
 
 ### Fatigue Detection
-- **Advanced Fatigue Score**: Multi-indicator fatigue assessment
+- **Fatigue Score**: Multi-indicator fatigue assessment
 - **Blink Pattern Analysis**: Blink rate, duration, and patterns
 - **Eye Openness**: Continuous monitoring of eye openness
 - **Head Pose**: Head position and movement analysis
@@ -128,18 +128,18 @@ The system supports multiple export formats:
 
 #### AdvancedEyeTracker
 - High-precision pupil tracking
-- Advanced fatigue detection algorithms
+- Fatigue detection algorithms
 - Cognitive load assessment
 - Real-time quality monitoring
 
 #### ResearchEyeTrackerUI
-- Professional research interface
-- Advanced calibration system
+- Research interface
+- Calibration system
 - Real-time analytics dashboard
 - Session management tools
 
 #### ResearchDataLogger
-- Comprehensive data collection
+- Data collection
 - Multiple export formats
 - Real-time analysis
 - Quality assessment
@@ -150,14 +150,14 @@ face_eye_tracker/
 ├── face-eye-tracker/
 │   ├── utils/
 │   │   ├── core/
-│   │   │   ├── advanced_tracker.py    # Advanced tracking engine
+│   │   │   ├── advanced_tracker.py    # Tracking engine
 │   │   │   └── tracker.py             # Standard tracking engine
 │   │   ├── research_data_logger.py    # Research data logging
 │   │   └── data_logger.py             # Standard data logging
 │   ├── ui/
 │   │   ├── research_ui.py             # Research interface
 │   │   ├── modern_ui.py               # Modern interface
-│   │   ├── comprehensive_ui.py        # Comprehensive interface
+│   │   ├── comprehensive_ui.py        # Full feature interface
 │   │   ├── simple_ui.py               # Simple interface
 │   │   └── headless_ui.py             # Headless interface
 │   └── main.py                        # Main application
@@ -202,7 +202,7 @@ face_eye_tracker/
 - **Attention and focus studies**
 - **Fatigue and workload assessment**
 
-### Professional Applications
+### Applications
 - **Driver monitoring systems**
 - **Workplace safety assessment**
 - **Educational technology research**
@@ -233,7 +233,7 @@ face_eye_tracker/
 ### Export Formats
 - **JSON**: Complete session data with metadata
 - **CSV**: Tabular data for statistical analysis
-- **Excel**: Multi-sheet workbook with comprehensive data
+- **Excel**: Multi-sheet workbook with data
 - **Pickle**: Python-compatible data format
 
 ### Analysis Tools
@@ -271,8 +271,8 @@ For questions, issues, or feature requests:
 
 ---
 
-**🔬 Professional Research-Grade Eye Tracking System**  
-*Accurate, Reliable, and Comprehensive*
+**🔬 Eye Tracking System**  
+*Accurate and Reliable*
 
 # Research Eye Tracking System
 
@@ -286,10 +286,10 @@ To run the research UI, execute the following command from the `face_eye_tracker
 python3 face-eye-tracker/main.py --ui research
 ```
 
-This will launch the advanced research interface, which includes:
+This will launch the research interface, which includes:
 -   Real-time data visualization
 -   Head pose (yaw and roll) display
--   Advanced cognitive load metrics
+-   Cognitive load metrics
 
 ## Head Pose Estimation
 

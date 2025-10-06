@@ -23,7 +23,7 @@ plt.rcParams['axes.labelcolor'] = 'white'
 plt.rcParams['xtick.color'] = 'white'
 plt.rcParams['ytick.color'] = 'white'
 
-class ComprehensiveEyeTrackerUI:
+class EyeTrackerUI:
     def __init__(self, tracker, data_logger):
         self.tracker = tracker
         self.data_logger = data_logger
@@ -72,7 +72,7 @@ class ComprehensiveEyeTrackerUI:
     def create_ui(self):
         """Create the main UI window"""
         self.root = tk.Tk()
-        self.root.title("Eye Tracking & Fatigue Detection - Comprehensive")
+        self.root.title("Eye Tracking & Fatigue Detection - Fully Featured")
         self.root.geometry("1800x1200")
         self.root.configure(bg='#1e1e1e')
         

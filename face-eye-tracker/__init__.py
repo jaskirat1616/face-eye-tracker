@@ -2,7 +2,7 @@
 Eye Tracking & Fatigue Detection Package
 =======================================
 
-A modern, professional application for real-time eye tracking and fatigue detection.
+A modern application for real-time eye tracking and fatigue detection.
 """
 
 __version__ = "1.0.0"

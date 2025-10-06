@@ -24,7 +24,7 @@ class HeadlessUI:
                 time.sleep(0.01)
                 continue
 
-            # Process frame - advanced tracker returns processed frame directly
+            # Process frame - tracker returns processed frame directly
             processed_frame = self.tracker.process_frame(frame)
             
             # Get current data for logging
