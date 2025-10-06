@@ -2,7 +2,7 @@
 
 🔬 **Eye Tracking System with Research Features**
 
-A research-grade eye tracking system designed for research, academic studies, and cognitive science applications.
+A high precision eye tracking system designed for research, academic studies, and cognitive science applications.
 
 ## 🌟 Key Features
 
@@ -274,7 +274,7 @@ For questions, issues, or feature requests:
 
 # Research Eye Tracking System
 
-This is a research-grade eye tracking system for monitoring cognitive load and fatigue. This updated version includes head pose estimation and an improved research UI.
+This is a high precision eye tracking system for monitoring cognitive load and fatigue. This updated version includes head pose estimation and an improved research UI.
 
 ## Quick Start: Running the Research UI
 

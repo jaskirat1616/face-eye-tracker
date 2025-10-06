@@ -103,8 +103,8 @@ class EyeTrackerUI:
         # Create main content area
         self.create_main_content()
         
-        # Create comprehensive metrics display
-        self.create_comprehensive_metrics_display()
+        # Create metrics display
+        self.create_detailed_metrics_display()
         
         # Create charts
         self.create_charts()
@@ -224,7 +224,7 @@ class EyeTrackerUI:
         
         tk.Label(instructions_frame, text="", bg='#f8f9fa').pack(pady=12)
     
-    def create_comprehensive_metrics_display(self):
+    def create_detailed_metrics_display(self):
         """Create real-time metrics display with updating labels"""
         metrics_frame = tk.Frame(self.root, bg='#f8f9fa', relief='flat', bd=1)
         metrics_frame.grid(row=0, column=2, sticky="nsew", padx=5, pady=5)
@@ -252,8 +252,8 @@ class EyeTrackerUI:
         canvas.pack(side="left", fill="both", expand=True, padx=15)
         scrollbar.pack(side="right", fill="y")
         
-        # Comprehensive metrics list with labels that update in place
-        comprehensive_metrics = [
+        # Detailed metrics list with labels that update in place
+        detailed_metrics = [
             ("Eye Openness", "eye_openness", "#007bff"),
             ("Blink Rate", "blink_rate", "#28a745"),
             ("Fatigue Score", "fatigue_score", "#dc3545"),
@@ -271,7 +271,7 @@ class EyeTrackerUI:
             ("Attention Score", "attention_score", "#feca57")
         ]
         
-        for label_text, key, color in comprehensive_metrics:
+        for label_text, key, color in detailed_metrics:
             # Create metric row
             metric_row = tk.Frame(scrollable_frame, bg='#ffffff', relief='flat', bd=1)
             metric_row.pack(fill='x', pady=2, padx=5)
@@ -372,8 +372,8 @@ class EyeTrackerUI:
                 if len(self.chart_data[key]) > max_points:
                     self.chart_data[key] = self.chart_data[key][-max_points:]
             
-            # Update comprehensive metrics with high frequency
-            self.update_comprehensive_metrics(data)
+            # Update detailed metrics with high frequency
+            self.update_detailed_metrics(data)
             
             # Update charts efficiently and return artists for blit
             return self.update_chart_plots_efficient(data)
@@ -494,10 +494,10 @@ class EyeTrackerUI:
         except Exception as e:
             print(f"Error initializing charts: {e}")
     
-    def update_comprehensive_metrics(self, data):
-        """Update comprehensive metrics display with current data"""
+    def update_detailed_metrics(self, data):
+        """Update metrics display with current data"""
         try:
-            # Update all comprehensive metrics in place
+            # Update all detailed metrics in place
             self.metric_labels["eye_openness"].config(
                 text=f"L:{data.get('left_eye_openness', 0):.3f} R:{data.get('right_eye_openness', 0):.3f}")
             
@@ -552,7 +552,7 @@ class EyeTrackerUI:
             self.metric_labels["attention_score"].config(text=f"{data.get('attention_score', 0.85):.2f}")
                 
         except Exception as e:
-            print(f"Error updating comprehensive metrics: {e}")
+            print(f"Error updating detailed metrics: {e}")
     
     def start_tracking(self):
         """Start eye tracking with optimized performance"""

@@ -3,7 +3,7 @@
 High Precision Eye Tracking Application
 ========================================
 
-A research-grade application for real-time eye tracking and 
+A high precision application for real-time eye tracking and 
 fatigue detection.
 """
 
